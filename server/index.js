@@ -1,7 +1,10 @@
 const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
+const multer = require('multer');
+const path = require('path');
 const compModel = require('./models/comp');
+const listingModel = require('./models/listing');
 
 const app = express();
 app.use(express.json());
@@ -9,6 +12,7 @@ app.use(cors());
 
 mongoose.connect('mongodb://localhost:27017/comp', {
 });
+
 
 app.post('/login', async (req, res) => {
     const { Email, Password } = req.body;
@@ -34,6 +38,12 @@ app.post('/register', async (req, res) => {
     .then(comp => res.json(comp))
     .catch(err => res.status(500).json(err));
 });
+
+app.post('/upload', async (req, res) => {
+    listingModel.create(req.body)
+      .then(listing => res.json(listing))
+      .catch(err => res.status(500).json(err));
+    });
 
 app.listen(3001, () => {
   console.log('server is running on port 3001');
