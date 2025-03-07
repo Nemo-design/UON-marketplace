@@ -13,7 +13,7 @@ function Login() {
       .then((res) => {
         console.log(res);
         if (res.data === 'Success') {
-        // Redirect to a different page after successful login
+        // Redirect to a dashboard page after successful login
             navigate('/dashboard');
         }
         else {

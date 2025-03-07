@@ -4,6 +4,7 @@ import Signup from './Signup'
 import {BrowserRouter, Routes, Route} from 'react-router-dom'
 import Login from './Login'
 import Dashboard from './dashboard'
+import Upload from './upload'
 
 function App() {
 
@@ -13,6 +14,7 @@ function App() {
         <Route path="/register" element={<Signup />} />
         <Route path="/login" element={<Login />} />
         <Route path="/dashboard" element={<Dashboard />} />
+        <Route path="upload" element={<Upload />} />
       </Routes>
     
     </BrowserRouter>
