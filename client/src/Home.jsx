@@ -27,7 +27,7 @@ function Home() {
                 </div>
             </nav>
             <div className="container mt-4">
-                <h1>Welcome to Maket</h1>
+                <h1>Welcome to Market</h1>
             </div>
         </div>
     );
