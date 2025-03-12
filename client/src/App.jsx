@@ -5,12 +5,15 @@ import {BrowserRouter, Routes, Route} from 'react-router-dom'
 import Login from './Login'
 import Dashboard from './dashboard'
 import Upload from './upload'
+import Home from './Home';
 
 function App() {
 
   return (
     <BrowserRouter> 
       <Routes>
+        <Route path="/" element={<Home />} />
+        <Route path="/" element={<Login />} />
         <Route path="/register" element={<Signup />} />
         <Route path="/login" element={<Login />} />
         <Route path="/dashboard" element={<Dashboard />} />
