@@ -3,51 +3,58 @@ import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 
 const Dashboard = () => {
-    const[listings, setListings] = useState([]);
-    const navigate = useNavigate();
+  const [listings, setListings] = useState([]);
+  const navigate = useNavigate();
 
-    useEffect(() => {   //fetch listings from backend
-        axios.get('http://localhost:3001/listings')
-            .then((res) => {
-                setListings(res.data);
-            })
-            .catch((err) => {
-                console.log(err);
-            });
-    }, []);
+  useEffect(() => {
+    // Fetch listings from the backend
+    const token = localStorage.getItem('token');
+    axios.get('http://localhost:3001/listings', {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    })
+      .then((res) => {
+        setListings(res.data);
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+  }, []);
 
-    const logOut = () => {
-        navigate('/login');
-    };
+  const logOut = () => {
+    localStorage.removeItem('token');
+    navigate('/login');
+  };
 
-    const createListing = () => {
-        navigate('/upload');
-    };
+  const createListing = () => {
+    navigate('/upload');
+  };
 
-    return (
-        <div>
-            <h1>University of Newcastle Community Marketplace</h1>
-            <button onClick={logOut}>Logout</button>
-            <button onClick={createListing}>Create Listing</button>
-        <div>
+  return (
+    <div>
+      <h1>University of Newcastle Community Marketplace</h1>
+      <button onClick={logOut}>Logout</button>
+      <button onClick={createListing}>Create Listing</button>
+      <div>
         <h2>Listings</h2>
         {listings.length > 0 ? (
-            <ul>
-                {listings.map((listing) => (
-                    <li key={listing.id}>
-                        <h3>{listing.title}</h3>
-                        <p>{listing.description}</p>
-                        <p>Price: {listing.price}</p>
-                        {/* {listing.image && <img src={listing.image} alt="listing" />} */}
-                    </li>
-                ))}
-            </ul>
+          <ul>
+            {listings.map((listing) => (
+              <li key={listing._id}>
+                <h3>{listing.title}</h3>
+                <p>{listing.description}</p>
+                <p>Price: {listing.price}</p>
+                {/* {listing.image && <img src={listing.image} alt="listing" />} */}
+              </li>
+            ))}
+          </ul>
         ) : (
-            <p>No listings found.</p>
+          <p>No listings found.</p>
         )}
-        </div>
-        </div>
-    );
+      </div>
+    </div>
+  );
 };
 
 export default Dashboard;
