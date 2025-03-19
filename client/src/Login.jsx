@@ -13,7 +13,8 @@ function Login() {
         axios.post('http://localhost:3001/login', { Email, Password })
             .then((res) => {
                 console.log(res);
-                if (res.data === 'Success') {
+                if (res.data.token) {
+                    localStorage.setItem('token', res.data.token);
                     navigate('/dashboard');
                 } else {
                     alert('Login failed. Please check your credentials and try again.');

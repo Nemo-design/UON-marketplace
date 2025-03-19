@@ -6,6 +6,7 @@ import Login from './Login'
 import Dashboard from './dashboard'
 import Upload from './upload'
 import Home from './Home';
+import ProtectedRoute from './ProtectedRoute'
 
 function App() {
 
@@ -16,12 +17,26 @@ function App() {
         <Route path="/" element={<Login />} />
         <Route path="/register" element={<Signup />} />
         <Route path="/login" element={<Login />} />
-        <Route path="/dashboard" element={<Dashboard />} />
-        <Route path="upload" element={<Upload />} />
+
+        <Route 
+        path="/dashboard" 
+        element={
+          <ProtectedRoute>
+            <Dashboard />
+          </ProtectedRoute>
+          } 
+          />
+        <Route 
+        path="/upload" 
+        element={
+        <ProtectedRoute>
+          <Upload />
+        </ProtectedRoute>
+        } 
+        />
       </Routes>
-    
     </BrowserRouter>
-  )
+  );
 }
 
 export default App
