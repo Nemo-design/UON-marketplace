@@ -39,6 +39,17 @@ app.post('/register', async (req, res) => {
     .catch(err => res.status(500).json(err));
 });
 
+
+app.get('/listings', async (req, res) => {
+    try{
+        const listings = await listingModel.find();
+        res.json(listings);
+    } catch (err) {
+        res.status(500).json(err);
+    }
+}
+);  // get all listings
+
 app.post('/upload', async (req, res) => {
     listingModel.create(req.body)
       .then(listing => res.json(listing))
