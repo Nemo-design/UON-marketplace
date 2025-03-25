@@ -24,7 +24,7 @@ const Dashboard = () => {
 
   const logOut = () => {
     localStorage.removeItem('token');
-    navigate('/login');
+    navigate('/');
   };
 
   const createListing = () => {
@@ -45,7 +45,7 @@ const Dashboard = () => {
                 <h3>{listing.title}</h3>
                 <p>{listing.description}</p>
                 <p>Price: {listing.price}</p>
-                {/* {listing.image && <img src={listing.image} alt="listing" />} */}
+                {listing.image && <img src={listing.image} alt="listing" />}
               </li>
             ))}
           </ul>
