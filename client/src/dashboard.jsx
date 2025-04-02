@@ -47,8 +47,9 @@ const Dashboard = () => {
                 <p>Price: {listing.price}</p>
                 <p>{listing.username}</p>
                 {listing.image && <img src={listing.image} alt="listing" />}
+                <button onClick={() => navigate(`/send-message?recipient=${listing.username}`)}>Send Message</button>
               </li>
-            ))}
+            ))} 
           </ul>
         ) : (
           <p>No listings found.</p>

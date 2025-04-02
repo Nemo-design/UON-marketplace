@@ -6,6 +6,7 @@ const bcrypt = require('bcryptjs'); // for authentication
 const path = require('path');
 const compModel = require('./models/comp');
 const listingModel = require('./models/listing');
+const messageModel = require('./models/message'); // Import the message model
 const authMiddleware = require('./middleware/authMiddleware');
 
 const app = express();
@@ -66,6 +67,26 @@ app.get('/my-listings', authMiddleware, async (req, res) => {
   }
 });
 
+// Get only the logged-in user's messages
+app.get('/my-messages', authMiddleware, async (req, res) => {
+  try {
+    const username = req.user.username; // Extract username from the token
+    console.log('Username from token:', username); // Debugging log
+
+    if (!username) {
+      return res.status(400).json({ error: 'Username not found in token' });
+    }
+
+    const messages = await messageModel.find({ receiver: username }); // Use 'receiver' instead of 'recipient'
+    console.log('Messages for user:', messages); // Debugging log
+
+    res.json(messages);
+  } catch (err) {
+    console.error('Error in /my-messages:', err); // Log the error
+    res.status(500).json({ error: 'Internal Server Error', details: err });
+  }
+});
+
 app.post('/upload', authMiddleware, async (req, res) => {
   const { title, description, price } = req.body;
   const username = req.user.username; // Extract Username from the token
@@ -77,6 +98,28 @@ app.post('/upload', authMiddleware, async (req, res) => {
   listingModel.create({ title, description, price, username })
     .then(listing => res.json(listing))
     .catch(err => res.status(500).json({ error: 'Internal Server Error', details: err }));
+});
+
+app.post('/message', authMiddleware, async (req, res) => {
+  const { recipient, message } = req.body;
+  const sender = req.user.username;
+
+  if (!sender) {
+    return res.status(400).json({ error: 'Sender not found in token' });
+  }
+
+  try {
+    const newMessage = await messageModel.create({
+      sender,
+      receiver: recipient,
+      content: message,
+    });
+
+    res.json({ message: 'Message sent successfully!', data: newMessage });
+  } catch (err) {
+    console.error('Error saving message:', err);
+    res.status(500).json({ error: 'Internal Server Error', details: err });
+  }
 });
 
 app.delete('/listings/:id', authMiddleware, async (req, res) => {

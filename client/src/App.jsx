@@ -8,6 +8,8 @@ import MyListings from './MyListings'
 import Upload from './upload'
 import Home from './Home';
 import ProtectedRoute from './ProtectedRoute'
+import SendMessage from './Message'
+import MyMessages from './MyMessages'
 
 function App() {
 
@@ -43,6 +45,22 @@ function App() {
             </ProtectedRoute>
           } 
         />
+        <Route 
+          path="/my-messages" 
+          element={
+            <ProtectedRoute>
+              <MyMessages />
+            </ProtectedRoute>
+          } 
+        />
+        <Route 
+          path="/send-message" 
+          element={
+            <ProtectedRoute>
+              <SendMessage />
+            </ProtectedRoute>
+          }
+          />
       </Routes>
     </BrowserRouter>
   );
