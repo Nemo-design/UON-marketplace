@@ -45,6 +45,7 @@ const Dashboard = () => {
                 <h3>{listing.title}</h3>
                 <p>{listing.description}</p>
                 <p>Price: {listing.price}</p>
+                <p>{listing.username}</p>
                 {listing.image && <img src={listing.image} alt="listing" />}
               </li>
             ))}
