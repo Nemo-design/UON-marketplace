@@ -15,6 +15,7 @@ function Login() {
                 console.log(res);
                 if (res.data.token) {
                     localStorage.setItem('token', res.data.token);
+                    localStorage.setItem('username', res.data.username); // Store the username in local storage
                     navigate('/dashboard');
                 } else {
                     alert('Login failed. Please check your credentials and try again.');

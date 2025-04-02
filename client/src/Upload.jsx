@@ -11,10 +11,14 @@ function Upload() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    const username = localStorage.getItem('username'); // Get the username from local storage
+
     const formData = {
       title,
       description,
       price,
+      username,
     };
 
     const token = localStorage.getItem('token');

@@ -4,6 +4,7 @@ import Signup from './Signup'
 import {BrowserRouter, Routes, Route} from 'react-router-dom'
 import Login from './Login'
 import Dashboard from './dashboard'
+import MyListings from './MyListings'
 import Upload from './upload'
 import Home from './Home';
 import ProtectedRoute from './ProtectedRoute'
@@ -33,6 +34,14 @@ function App() {
           <Upload />
         </ProtectedRoute>
         } 
+        />
+        <Route 
+          path="/my-listings" 
+          element={
+            <ProtectedRoute>
+              <MyListings />
+            </ProtectedRoute>
+          } 
         />
       </Routes>
     </BrowserRouter>
