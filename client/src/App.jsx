@@ -61,6 +61,14 @@ function App() {
             </ProtectedRoute>
           }
           />
+          <Route 
+        path="/account" 
+        element={
+        <ProtectedRoute>
+          <Account />
+        </ProtectedRoute>
+        } 
+        />
       </Routes>
     </BrowserRouter>
   );

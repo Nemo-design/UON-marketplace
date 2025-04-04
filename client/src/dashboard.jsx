@@ -30,12 +30,16 @@ const Dashboard = () => {
   const createListing = () => {
     navigate('/upload');
   };
+  const myAccount = () => {
+    navigate('/account');
+  };
 
   return (
     <div>
       <h1>University of Newcastle Community Marketplace</h1>
       <button onClick={logOut}>Logout</button>
       <button onClick={createListing}>Create Listing</button>
+      <button onClick={myAccount}>my Account</button>
       <div>
         <h2>Listings</h2>
         {listings.length > 0 ? (
