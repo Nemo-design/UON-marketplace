@@ -1,0 +1,21 @@
+{
+  "name": "signup",
+  "version": "1.0.0",
+  "description": "to run change to client folder in terminal and use npm run dev\r then chaange to server folder in different terminal and use npm start",
+  "main": "index.js",
+  "scripts": {
+    "dev": "vite",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Nemo-design/Signup.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Nemo-design/Signup/issues"
+  },
+  "homepage": "https://github.com/Nemo-design/Signup#readme"
+}

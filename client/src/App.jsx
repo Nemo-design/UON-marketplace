@@ -10,6 +10,7 @@ import Home from './Home';
 import ProtectedRoute from './ProtectedRoute'
 import SendMessage from './Message'
 import MyMessages from './MyMessages'
+import Account from './Account'
 
 function App() {
 
