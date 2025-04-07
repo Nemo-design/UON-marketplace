@@ -11,6 +11,7 @@ import ProtectedRoute from './ProtectedRoute'
 import SendMessage from './Message'
 import MyMessages from './MyMessages'
 import Account from './Account'
+import EditListing from './EditListing'
 
 function App() {
 
@@ -69,6 +70,14 @@ function App() {
           <Account />
         </ProtectedRoute>
         } 
+        />
+        <Route 
+          path="/edit-listing/:id" 
+          element={
+            <ProtectedRoute>
+              <EditListing />
+            </ProtectedRoute>
+          }
         />
       </Routes>
     </BrowserRouter>

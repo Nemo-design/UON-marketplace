@@ -51,6 +51,37 @@ app.get('/listings', authMiddleware, async (req, res) => {
   }
 });
 
+// Delete a listing
+app.delete('/listings/:id', authMiddleware, async (req, res) => {
+  try {
+    const listing = await listingModel.findByIdAndDelete(req.params.id);
+    if (!listing) {
+      return res.status(404).json({ error: 'Listing not found' });
+    }
+    res.json({ message: 'Listing deleted successfully' });
+  } catch (err) {
+    res.status(500).json(err);
+  }
+});
+
+// Edit a listing
+app.put('/listings/:id', authMiddleware, async (req, res) => {
+  try {
+    const { title, description, price } = req.body;
+    const listing = await listingModel.findByIdAndUpdate(
+      req.params.id,
+      { title, description, price },
+      { new: true }
+    );
+    if (!listing) {
+      return res.status(404).json({ error: 'Listing not found' });
+    }
+    res.json(listing);
+  } catch (err) {
+    res.status(500).json(err);
+  }
+});
+
 // Get only the logged-in user's listings
 app.get('/my-listings', authMiddleware, async (req, res) => {
   try {
@@ -119,18 +150,6 @@ app.post('/message', authMiddleware, async (req, res) => {
   } catch (err) {
     console.error('Error saving message:', err);
     res.status(500).json({ error: 'Internal Server Error', details: err });
-  }
-});
-
-app.delete('/listings/:id', authMiddleware, async (req, res) => {
-  try {
-    const listing = await listingModel.findByIdAndDelete(req.params.id);
-    if (!listing) {
-      return res.status(404).json({ error: 'Listing not found' });
-    }
-    res.json({ message: 'Listing deleted successfully' });
-  } catch (err) {
-    res.status(500).json(err);
   }
 });
 

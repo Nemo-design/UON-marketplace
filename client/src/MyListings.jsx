@@ -1,9 +1,11 @@
 import React, { useEffect, useState } from 'react';
-//import { useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
+import Dashboard from './dashboard';
 
 const MyListings = () => {
   const [listings, setListings] = useState([]);
+  const navigate = useNavigate();
 
   useEffect(() => {
     // Fetch only the logged-in user's listings from the backend
@@ -21,9 +23,38 @@ const MyListings = () => {
       });
   }, []);
 
+  const handleEdit = (id) => {
+    navigate(`/edit-listing/${id}`); // Redirect to the edit listing page
+  }
+
+
+  const handleDelete = async (id) => {
+    const token = localStorage.getItem('token');
+    try {
+      await axios.delete(`http://localhost:3001/listings/${id}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      setListings(listings.filter((listing) => listing._id !== id));
+    } catch (err) {
+      console.error(err);
+    }
+  }
+
+  const createListing = () => {
+    navigate('/upload');
+  };
+
+  const Dashboard = () => {
+    navigate('/dashboard');
+  }
+
   return (
     <div>
       <h1>My Listings</h1>
+      <button onClick={Dashboard}>Home</button>
+      <button onClick={createListing}>Create Listing</button>
       <div>
         {listings.length > 0 ? (
           <ul>
@@ -32,6 +63,8 @@ const MyListings = () => {
                 <h3>{listing.title}</h3>
                 <p>{listing.description}</p>
                 <p>Price: {listing.price}</p>
+                <button onClick={() => handleEdit(listing._id)}>Edit</button>
+                <button onClick={() => handleDelete(listing._id)}>Delete</button>
               </li>
             ))}
           </ul>

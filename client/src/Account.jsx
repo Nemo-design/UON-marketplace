@@ -9,10 +9,10 @@ const Account = () => {
       <nav>
         <ul>
           <li>
-            <Link to="/messages">Messages</Link>
+            <Link to="/my-messages">Messages</Link>
           </li>
           <li>
-            <Link to="/listings">Listings</Link>
+            <Link to="/my-listings">Listings</Link>
           </li>
         </ul>
       </nav>
