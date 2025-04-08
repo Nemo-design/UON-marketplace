@@ -26,7 +26,7 @@ const EditListing = () => {
             .catch((err) => {
                 console.log(err);
             });
-    }, [id]);
+    }, [id, setDescription, setPrice, setTitle]);
     const handleSubmit = async (e) => {
         e.preventDefault();
         const token = localStorage.getItem('token');
