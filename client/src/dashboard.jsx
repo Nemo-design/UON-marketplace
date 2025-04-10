@@ -39,7 +39,7 @@ const Dashboard = () => {
       <h1>University of Newcastle Community Marketplace</h1>
       <button onClick={logOut}>Logout</button>
       <button onClick={createListing}>Create Listing</button>
-      <button onClick={myAccount}>my Account</button>
+      <button onClick={myAccount}>My Account</button>
       <div>
         <h2>Listings</h2>
         {listings.length > 0 ? (
@@ -49,11 +49,17 @@ const Dashboard = () => {
                 <h3>{listing.title}</h3>
                 <p>{listing.description}</p>
                 <p>Price: {listing.price}</p>
-                <p>{listing.username}</p>
-                {listing.image && <img src={listing.image} alt="listing" />}
+                <p>Seller: {listing.username}</p>
+                {listing.image && (
+                  <img
+                    src={`data:image/jpeg;base64,${listing.image}`} // Render Base64 image
+                    alt="listing"
+                    style={{ width: '200px', height: 'auto' }}
+                  />
+                )}
                 <button onClick={() => navigate(`/send-message?recipient=${listing.username}`)}>Send Message</button>
               </li>
-            ))} 
+            ))}
           </ul>
         ) : (
           <p>No listings found.</p>
