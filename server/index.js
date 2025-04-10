@@ -3,6 +3,7 @@ const mongoose = require('mongoose');
 const cors = require('cors');
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs'); // for authentication
+const multer = require('multer'); // for handling file uploads
 const path = require('path');
 const compModel = require('./models/comp');
 const listingModel = require('./models/listing');
@@ -12,6 +13,10 @@ const authMiddleware = require('./middleware/authMiddleware');
 const app = express();
 app.use(express.json());
 app.use(cors());
+
+// Configure multer for file uploads
+const storage = multer.memoryStorage(); // Store files in memory
+const upload = multer({ storage });
 
 mongoose.connect('mongodb+srv://Comp3851:comp3851b@cluster0.csaho.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0', {
   useNewUrlParser: true,
@@ -118,7 +123,8 @@ app.get('/my-messages', authMiddleware, async (req, res) => {
   }
 });
 
-app.post('/upload', authMiddleware, async (req, res) => {
+// Upload a listing with an image
+app.post('/upload', authMiddleware, upload.single('image'), async (req, res) => {
   const { title, description, price } = req.body;
   const username = req.user.username; // Extract Username from the token
 
@@ -126,9 +132,22 @@ app.post('/upload', authMiddleware, async (req, res) => {
     return res.status(400).json({ error: 'Username not found in token' });
   }
 
-  listingModel.create({ title, description, price, username })
-    .then(listing => res.json(listing))
-    .catch(err => res.status(500).json({ error: 'Internal Server Error', details: err }));
+  try {
+    const image = req.file ? req.file.buffer.toString('base64') : null; // Convert image to Base64 string
+
+    const newListing = await listingModel.create({
+      title,
+      description,
+      price,
+      username,
+      image, // Save the Base64 string in the database
+    });
+
+    res.json({ message: 'Listing uploaded successfully!', data: newListing });
+  } catch (err) {
+    console.error('Error uploading listing:', err);
+    res.status(500).json({ error: 'Internal Server Error', details: err });
+  }
 });
 
 app.get('/listings/:id', authMiddleware, async (req, res) => {

@@ -1,0 +1,64 @@
+/* Dashboard.css */
+
+.listing-card {
+    transition: box-shadow 0.2s ease-in-out;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+}
+
+.listing-card:hover {
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+}
+
+.card-title {
+    font-size: 1.2rem;
+    font-weight: 600;
+}
+
+.card-text {
+    font-size: 0.95rem;
+}
+
+.category-sidebar {
+    border-right: 1px solid #eee;
+    min-height: 100%;
+}
+
+.category-item a {
+    color: #333;
+    display: block;
+    padding: 6px 0;
+}
+
+.category-item a:hover {
+    color: #0d6efd;
+    text-decoration: underline;
+}
+
+.listing-image {
+    height: 200px;
+    object-fit: cover;
+}
+
+.search-form {
+    width: 100%;
+    max-width: 500px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.search-input {
+    flex-grow: 1;
+    padding: 10px;
+    font-size: 1rem;
+}
+
+.search-btn {
+    background-color: transparent;
+    color: #000;
+    border: 1px solid #000;
+    padding: 10px 15px;
+    font-size: 1rem;
+    transition: all 0.3s;
+}
+

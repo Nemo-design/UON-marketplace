@@ -6,6 +6,7 @@ function Upload() {
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [price, setPrice] = useState('');
+  const [image, setImage] = useState(null); // State for the image file
 
   const navigate = useNavigate();
 
@@ -14,17 +15,19 @@ function Upload() {
 
     const username = localStorage.getItem('username'); // Get the username from local storage
 
-    const formData = {
-      title,
-      description,
-      price,
-      username,
-    };
+    const formData = new FormData(); // Use FormData for file upload
+    formData.append('title', title);
+    formData.append('description', description);
+    formData.append('price', price);
+    formData.append('username', username);
+    if (image) {
+      formData.append('image', image); // Append the image file
+    }
 
     const token = localStorage.getItem('token');
     axios.post('http://localhost:3001/upload', formData, {
       headers: {
-        'Content-Type': 'application/json',
+        'Content-Type': 'multipart/form-data', // Set content type for file upload
         'Authorization': `Bearer ${token}`,
       },
     })
@@ -69,6 +72,16 @@ function Upload() {
             name="price"
             required
             onChange={(e) => setPrice(e.target.value)}
+          />
+        </div>
+        <div className="form-group">
+          <label htmlFor="Image">Upload Image</label>
+          <input
+            type="file"
+            id="Image"
+            name="image"
+            accept="image/*"
+            onChange={(e) => setImage(e.target.files[0])} // Set the selected file
           />
         </div>
         <button type="submit">Upload</button>
