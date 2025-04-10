@@ -17,11 +17,10 @@ const listingSchema = new mongoose.Schema({
         type: String,
         required: true
     },
-    /*,
     image: {
-        type: String,
+        type: String, // Store the image URL or Base64 string
         required: true
-    }*/
+    }
 });
 
 const listingModel = mongoose.model('listing', listingSchema);
