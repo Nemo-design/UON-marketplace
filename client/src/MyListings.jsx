@@ -23,9 +23,9 @@ const MyListings = () => {
       });
   }, []);
 
-  /*const handleEdit = (id) => {
+  const handleEdit = (id) => {
     navigate(`/edit-listing/${id}`); // Redirect to the edit listing page
-  }*/
+  }
 
 
   const handleDelete = async (id) => {
@@ -63,8 +63,7 @@ const MyListings = () => {
                 <h3>{listing.title}</h3>
                 <p>{listing.description}</p>
                 <p>Price: {listing.price}</p>
-                {/* <button onClick={() => handleEdit(listing._id)}>Edit</button> */}
-                <button>Edit</button>
+                <button onClick={() => handleEdit(listing._id)}>Edit</button>
                 <button onClick={() => handleDelete(listing._id)}>Delete</button>
               </li>
             ))}

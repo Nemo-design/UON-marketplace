@@ -23,7 +23,7 @@ app.post('/login', async (req, res) => {
   compModel.findOne({ Email })
     .then(comp => {
       if (comp) {
-        if (comp.Password === Password) { // Replace this with bcrypt comparison if passwords are hashed
+        if (comp.Password === Password) { 
           const token = jwt.sign({ _id: comp._id, username: comp.Username }, 'your_jwt_secret', { expiresIn: '1h' }); // Include Username
           res.json({ token, username: comp.Username }); // Send Username in the response
         } else {
@@ -129,6 +129,18 @@ app.post('/upload', authMiddleware, async (req, res) => {
   listingModel.create({ title, description, price, username })
     .then(listing => res.json(listing))
     .catch(err => res.status(500).json({ error: 'Internal Server Error', details: err }));
+});
+
+app.get('/listings/:id', authMiddleware, async (req, res) => {
+  try {
+      const listing = await listingModel.findById(req.params.id);
+      if (!listing) {
+          return res.status(404).json({ error: 'Listing not found' });
+      }
+      res.json(listing);
+  } catch (err) {
+      res.status(500).json({ error: 'Internal Server Error', details: err });
+  }
 });
 
 app.post('/message', authMiddleware, async (req, res) => {
