@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import { useLocation } from 'react-router-dom';
 import axios from 'axios';
+import 'bootstrap/dist/css/bootstrap.min.css'; // Import Bootstrap CSS
+import './Message.css'; // Import custom CSS for styling]
 
 function SendMessage() {
   const [message, setMessage] = useState(''); // State for the message input

@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import 'bootstrap/dist/css/bootstrap.min.css'; // 引入 Bootstrap
+import './Login.css';
 
 function Login() {
     const [Email, setEmail] = useState('');

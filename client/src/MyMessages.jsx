@@ -3,6 +3,8 @@ import React, { useEffect, useState } from 'react';
 //import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
+import 'bootstrap/dist/css/bootstrap.min.css'; // Import Bootstrap CSS
+import './MyMessages.css';
 
 const MyMessages = () => {
   const [messages, setMessages] = useState([]);
