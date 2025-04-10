@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
-import Dashboard from './dashboard';
 
 const MyListings = () => {
   const [listings, setListings] = useState([]);
@@ -25,8 +24,7 @@ const MyListings = () => {
 
   const handleEdit = (id) => {
     navigate(`/edit-listing/${id}`); // Redirect to the edit listing page
-  }
-
+  };
 
   const handleDelete = async (id) => {
     const token = localStorage.getItem('token');
@@ -40,20 +38,20 @@ const MyListings = () => {
     } catch (err) {
       console.error(err);
     }
-  }
+  };
 
   const createListing = () => {
     navigate('/upload');
   };
 
-  const Dashboard = () => {
+  const goToDashboard = () => {
     navigate('/dashboard');
-  }
+  };
 
   return (
     <div>
       <h1>My Listings</h1>
-      <button onClick={Dashboard}>Home</button>
+      <button onClick={goToDashboard}>Home</button>
       <button onClick={createListing}>Create Listing</button>
       <div>
         {listings.length > 0 ? (
@@ -63,6 +61,13 @@ const MyListings = () => {
                 <h3>{listing.title}</h3>
                 <p>{listing.description}</p>
                 <p>Price: {listing.price}</p>
+                {listing.image && (
+                  <img
+                    src={`data:image/jpeg;base64,${listing.image}`} // Render Base64 image
+                    alt="listing"
+                    style={{ width: '200px', height: 'auto' }}
+                  />
+                )}
                 <button onClick={() => handleEdit(listing._id)}>Edit</button>
                 <button onClick={() => handleDelete(listing._id)}>Delete</button>
               </li>

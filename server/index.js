@@ -70,20 +70,25 @@ app.delete('/listings/:id', authMiddleware, async (req, res) => {
 });
 
 // Edit a listing
-app.put('/listings/:id', authMiddleware, async (req, res) => {
+app.put('/listings/:id', authMiddleware, upload.single('image'), async (req, res) => {
   try {
     const { title, description, price } = req.body;
-    const listing = await listingModel.findByIdAndUpdate(
-      req.params.id,
-      { title, description, price },
-      { new: true }
-    );
-    if (!listing) {
+    const image = req.file ? req.file.buffer.toString('base64') : undefined; // Convert new image to Base64 if provided
+
+    const updateData = { title, description, price };
+    if (image) {
+      updateData.image = image; // Update the image if a new one is uploaded
+    }
+
+    const updatedListing = await listingModel.findByIdAndUpdate(req.params.id, updateData, { new: true });
+    if (!updatedListing) {
       return res.status(404).json({ error: 'Listing not found' });
     }
-    res.json(listing);
+
+    res.json(updatedListing);
   } catch (err) {
-    res.status(500).json(err);
+    console.error('Error updating listing:', err);
+    res.status(500).json({ error: 'Internal Server Error', details: err });
   }
 });
 
