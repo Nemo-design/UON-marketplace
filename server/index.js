@@ -56,6 +56,17 @@ app.get('/listings', authMiddleware, async (req, res) => {
   }
 });
 
+// Endpoint to fetch listings for the Electronics category
+app.get('/listings/electronics', authMiddleware, async (req, res) => {
+  try {
+    const listings = await listingModel.find({ category: 'Electronics' }); // Fetch only Electronics category
+    res.json(listings);
+  } catch (err) {
+    console.error('Error fetching electronics listings:', err);
+    res.status(500).json({ error: 'Internal Server Error', details: err });
+  }
+});
+
 // Delete a listing
 app.delete('/listings/:id', authMiddleware, async (req, res) => {
   try {
@@ -72,10 +83,10 @@ app.delete('/listings/:id', authMiddleware, async (req, res) => {
 // Edit a listing
 app.put('/listings/:id', authMiddleware, upload.single('image'), async (req, res) => {
   try {
-    const { title, description, price } = req.body;
+    const { title, description, price, category } = req.body;
     const image = req.file ? req.file.buffer.toString('base64') : undefined; // Convert new image to Base64 if provided
 
-    const updateData = { title, description, price };
+    const updateData = { title, description, price, category };
     if (image) {
       updateData.image = image; // Update the image if a new one is uploaded
     }
@@ -108,29 +119,9 @@ app.get('/my-listings', authMiddleware, async (req, res) => {
   }
 });
 
-// Get only the logged-in user's messages
-app.get('/my-messages', authMiddleware, async (req, res) => {
-  try {
-    const username = req.user.username; // Extract username from the token
-    console.log('Username from token:', username); // Debugging log
-
-    if (!username) {
-      return res.status(400).json({ error: 'Username not found in token' });
-    }
-
-    const messages = await messageModel.find({ receiver: username }); // Use 'receiver' instead of 'recipient'
-    console.log('Messages for user:', messages); // Debugging log
-
-    res.json(messages);
-  } catch (err) {
-    console.error('Error in /my-messages:', err); // Log the error
-    res.status(500).json({ error: 'Internal Server Error', details: err });
-  }
-});
-
-// Upload a listing with an image
+// Upload a listing with an image and category
 app.post('/upload', authMiddleware, upload.single('image'), async (req, res) => {
-  const { title, description, price } = req.body;
+  const { title, description, price, category } = req.body;
   const username = req.user.username; // Extract Username from the token
 
   if (!username) {
@@ -146,6 +137,7 @@ app.post('/upload', authMiddleware, upload.single('image'), async (req, res) => 
       price,
       username,
       image, // Save the Base64 string in the database
+      category, // Save the selected category
     });
 
     res.json({ message: 'Listing uploaded successfully!', data: newListing });

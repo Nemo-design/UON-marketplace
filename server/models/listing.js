@@ -20,6 +20,22 @@ const listingSchema = new mongoose.Schema({
     image: {
         type: String, // Store the image URL or Base64 string
         required: true
+    },
+    category: {
+        type: String,
+        required: true,
+        enum: [
+            'Electronics',
+            'Furniture',
+            'Clothing',
+            'Books',
+            'Sports',
+            'Vehicles',
+            'Toys',
+            'Home Appliances',
+            'Beauty',
+            'Pets'
+        ] // Allowed values for the dropdown
     }
 });
 

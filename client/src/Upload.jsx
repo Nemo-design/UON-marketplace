@@ -7,6 +7,7 @@ function Upload() {
   const [description, setDescription] = useState('');
   const [price, setPrice] = useState('');
   const [image, setImage] = useState(null); // State for the image file
+  const [category, setCategory] = useState(''); // State for the category
 
   const navigate = useNavigate();
 
@@ -20,6 +21,7 @@ function Upload() {
     formData.append('description', description);
     formData.append('price', price);
     formData.append('username', username);
+    formData.append('category', category); // Append the selected category
     if (image) {
       formData.append('image', image); // Append the image file
     }
@@ -75,6 +77,28 @@ function Upload() {
           />
         </div>
         <div className="form-group">
+          <label htmlFor="Category">Category</label>
+          <select
+            id="Category"
+            name="category"
+            value={category}
+            onChange={(e) => setCategory(e.target.value)}
+            required
+          >
+            <option value="">Select a category</option>
+            <option value="Electronics">Electronics</option>
+            <option value="Furniture">Furniture</option>
+            <option value="Clothing">Clothing</option>
+            <option value="Books">Books</option>
+            <option value="Sports">Sports</option>
+            <option value="Vehicles">Vehicles</option>
+            <option value="Toys">Toys</option>
+            <option value="Home Appliances">Home Appliances</option>
+            <option value="Beauty">Beauty</option>
+            <option value="Pets">Pets</option>
+          </select>
+        </div>
+        <div className="form-group">
           <label htmlFor="Image">Upload Image</label>
           <input
             type="file"
@@ -90,4 +114,4 @@ function Upload() {
   );
 }
 
-export default Upload;
+export default Upload;  

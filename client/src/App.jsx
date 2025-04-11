@@ -1,87 +1,88 @@
 // import { useState } from 'react'
 import 'bootstrap/dist/css/bootstrap.min.css'
 import Signup from './Signup'
-import {BrowserRouter, Routes, Route} from 'react-router-dom'
+import { BrowserRouter, Routes, Route } from 'react-router-dom'
 import Login from './Login'
 import Dashboard from './dashboard'
 import MyListings from './MyListings'
-import Upload from './upload'
-import Home from './Home';
+import Upload from './Upload'
+import Home from './Home'
 import ProtectedRoute from './ProtectedRoute'
 import SendMessage from './Message'
 import MyMessages from './MyMessages'
 import Account from './Account'
 import EditListing from './EditListing'
+import Electronics from './categories/electronics'
 
 function App() {
-
   return (
-    <BrowserRouter> 
+    <BrowserRouter>
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/" element={<Login />} />
         <Route path="/register" element={<Signup />} />
         <Route path="/login" element={<Login />} />
 
-        <Route 
-        path="/dashboard" 
-        element={
-          <ProtectedRoute>
-            <Dashboard />
-          </ProtectedRoute>
-          } 
-          />
-        <Route 
-        path="/upload" 
-        element={
-        <ProtectedRoute>
-          <Upload />
-        </ProtectedRoute>
-        } 
+        <Route
+          path="/dashboard"
+          element={
+            <ProtectedRoute>
+              <Dashboard />
+            </ProtectedRoute>
+          }
         />
-        <Route 
-          path="/my-listings" 
+        <Route
+          path="/upload"
+          element={
+            <ProtectedRoute>
+              <Upload />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/my-listings"
           element={
             <ProtectedRoute>
               <MyListings />
             </ProtectedRoute>
-          } 
+          }
         />
-        <Route 
-          path="/my-messages" 
+        <Route
+          path="/my-messages"
           element={
             <ProtectedRoute>
               <MyMessages />
             </ProtectedRoute>
-          } 
+          }
         />
-        <Route 
-          path="/send-message" 
+        <Route
+          path="/send-message"
           element={
             <ProtectedRoute>
               <SendMessage />
             </ProtectedRoute>
           }
-          />
-          <Route 
-        path="/account" 
-        element={
-        <ProtectedRoute>
-          <Account />
-        </ProtectedRoute>
-        } 
         />
-        <Route 
-          path="/edit-listing/:id" 
+        <Route
+          path="/account"
+          element={
+            <ProtectedRoute>
+              <Account />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/edit-listing/:id"
           element={
             <ProtectedRoute>
               <EditListing />
             </ProtectedRoute>
           }
         />
+        <Route path="/category/electronics" element={<Electronics />} />
       </Routes>
     </BrowserRouter>
-  );
+  )
 }
 
 export default App
