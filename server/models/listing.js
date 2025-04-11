@@ -19,7 +19,7 @@ const listingSchema = new mongoose.Schema({
     },
     image: {
         type: String, // Store the image URL or Base64 string
-        required: true
+        required: false // Changed to false to make it optional
     },
     category: {
         type: String,
@@ -35,7 +35,11 @@ const listingSchema = new mongoose.Schema({
             'Home Appliances',
             'Beauty',
             'Pets'
-        ] // Allowed values for the dropdown
+        ]
+    },
+    createdAt: {
+        type: Date,
+        default: Date.now // Add timestamp for when listing is created
     }
 });
 

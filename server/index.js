@@ -2,73 +2,146 @@ const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
 const jwt = require('jsonwebtoken');
-const bcrypt = require('bcryptjs'); // for authentication
-const multer = require('multer'); // for handling file uploads
+const bcrypt = require('bcryptjs');
+const multer = require('multer');
 const path = require('path');
 const compModel = require('./models/comp');
 const listingModel = require('./models/listing');
-const messageModel = require('./models/message'); // Import the message model
+const messageModel = require('./models/message');
 const authMiddleware = require('./middleware/authMiddleware');
 
 const app = express();
-app.use(express.json());
+app.use(express.json({ limit: '50mb' }));
 app.use(cors());
 
 // Configure multer for file uploads
-const storage = multer.memoryStorage(); // Store files in memory
-const upload = multer({ storage });
+const storage = multer.memoryStorage();
+const upload = multer({ 
+  storage,
+  limits: { fileSize: 10 * 1024 * 1024 } // 10MB limit
+});
 
+// MongoDB connection
 mongoose.connect('mongodb+srv://Comp3851:comp3851b@cluster0.csaho.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0', {
   useNewUrlParser: true,
   useUnifiedTopology: true,
-});
+})
+.then(() => console.log('Connected to MongoDB'))
+.catch(err => console.error('MongoDB connection error:', err));
 
+// Login endpoint
 app.post('/login', async (req, res) => {
-  const { Email, Password } = req.body;
-  compModel.findOne({ Email })
-    .then(comp => {
-      if (comp) {
-        if (comp.Password === Password) { 
-          const token = jwt.sign({ _id: comp._id, username: comp.Username }, 'your_jwt_secret', { expiresIn: '1h' }); // Include Username
-          res.json({ token, username: comp.Username }); // Send Username in the response
-        } else {
-          res.status(401).json({ error: 'Invalid email or password' });
-        }
-      } else {
-        res.status(404).json({ error: 'User not found' });
-      }
-    })
-    .catch(err => res.status(500).json({ error: 'Internal Server Error', details: err }));
-});
-
-app.post('/register', async (req, res) => {
-  compModel.create(req.body)
-    .then(comp => res.json(comp))
-    .catch(err => res.status(500).json(err));
-});
-
-app.get('/listings', authMiddleware, async (req, res) => {
   try {
-    const listings = await listingModel.find();
-    res.json(listings);
+    const { Email, Password } = req.body;
+    const user = await compModel.findOne({ Email });
+    
+    if (!user) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+    
+    if (user.Password !== Password) {
+      return res.status(401).json({ error: 'Invalid password' });
+    }
+    
+    const token = jwt.sign(
+      { _id: user._id, username: user.Username },
+      'your_jwt_secret',
+      { expiresIn: '24h' }
+    );
+    
+    res.json({ token, username: user.Username });
   } catch (err) {
-    res.status(500).json(err);
+    console.error('Login error:', err);
+    res.status(500).json({ error: 'Internal Server Error', details: err.message });
   }
 });
 
-// Endpoint to fetch listings for the Electronics category
-app.get('/listings/electronics', authMiddleware, async (req, res) => {
+// Register endpoint
+app.post('/register', async (req, res) => {
   try {
-    const listings = await listingModel.find({ category: 'Electronics' }); // Fetch only Electronics category
+    const newUser = await compModel.create(req.body);
+    res.json(newUser);
+  } catch (err) {
+    console.error('Registration error:', err);
+    res.status(500).json({ error: 'Registration failed', details: err.message });
+  }
+});
+
+// Get all listings (no auth required)
+app.get('/listings/all', async (req, res) => {
+  try {
+    const listings = await listingModel.find().sort({ createdAt: -1 });
     res.json(listings);
   } catch (err) {
-    console.error('Error fetching electronics listings:', err);
-    res.status(500).json({ error: 'Internal Server Error', details: err });
+    console.error('Error fetching all listings:', err);
+    res.status(500).json({ error: 'Internal Server Error', details: err.message });
+  }
+});
+
+// Upload a new listing
+app.post('/upload', authMiddleware(false), upload.single('image'), async (req, res) => {
+  try {
+    const { title, description, price, category } = req.body;
+    
+    // Validate required fields
+    if (!title || !description || !price || !category) {
+      return res.status(400).json({ 
+        error: 'Missing required fields',
+        details: 'Title, description, price, and category are required'
+      });
+    }
+
+    // Create listing object
+    const listingData = {
+      title,
+      description,
+      price,
+      category,
+      username: req.user ? req.user.username : 'Anonymous',
+      createdAt: new Date()
+    };
+
+    // Add image if provided
+    if (req.file) {
+      listingData.image = req.file.buffer.toString('base64');
+    }
+
+    // Save to database
+    const newListing = await listingModel.create(listingData);
+    console.log('New listing created:', newListing._id);
+
+    res.status(201).json({ 
+      message: 'Listing created successfully',
+      data: newListing 
+    });
+  } catch (err) {
+    console.error('Error creating listing:', err);
+    res.status(500).json({ 
+      error: 'Failed to create listing',
+      details: err.message 
+    });
+  }
+});
+
+// Get listings by category
+app.get('/listings/:category', async (req, res) => {
+  try {
+    const { category } = req.params;
+    const listings = await listingModel.find({ 
+      category: { 
+        $regex: new RegExp(category, 'i') 
+      }
+    }).sort({ createdAt: -1 });
+    
+    res.json(listings);
+  } catch (err) {
+    console.error(`Error fetching ${req.params.category} listings:`, err);
+    res.status(500).json({ error: 'Internal Server Error', details: err.message });
   }
 });
 
 // Delete a listing
-app.delete('/listings/:id', authMiddleware, async (req, res) => {
+app.delete('/listings/:id', authMiddleware(false), async (req, res) => {
   try {
     const listing = await listingModel.findByIdAndDelete(req.params.id);
     if (!listing) {
@@ -76,22 +149,27 @@ app.delete('/listings/:id', authMiddleware, async (req, res) => {
     }
     res.json({ message: 'Listing deleted successfully' });
   } catch (err) {
-    res.status(500).json(err);
+    console.error('Error deleting listing:', err);
+    res.status(500).json({ error: 'Failed to delete listing', details: err.message });
   }
 });
 
 // Edit a listing
-app.put('/listings/:id', authMiddleware, upload.single('image'), async (req, res) => {
+app.put('/listings/:id', authMiddleware(false), upload.single('image'), async (req, res) => {
   try {
     const { title, description, price, category } = req.body;
-    const image = req.file ? req.file.buffer.toString('base64') : undefined; // Convert new image to Base64 if provided
-
     const updateData = { title, description, price, category };
-    if (image) {
-      updateData.image = image; // Update the image if a new one is uploaded
+    
+    if (req.file) {
+      updateData.image = req.file.buffer.toString('base64');
     }
 
-    const updatedListing = await listingModel.findByIdAndUpdate(req.params.id, updateData, { new: true });
+    const updatedListing = await listingModel.findByIdAndUpdate(
+      req.params.id,
+      updateData,
+      { new: true }
+    );
+
     if (!updatedListing) {
       return res.status(404).json({ error: 'Listing not found' });
     }
@@ -99,88 +177,52 @@ app.put('/listings/:id', authMiddleware, upload.single('image'), async (req, res
     res.json(updatedListing);
   } catch (err) {
     console.error('Error updating listing:', err);
-    res.status(500).json({ error: 'Internal Server Error', details: err });
+    res.status(500).json({ error: 'Failed to update listing', details: err.message });
   }
 });
 
-// Get only the logged-in user's listings
-app.get('/my-listings', authMiddleware, async (req, res) => {
+// Get user's listings
+app.get('/my-listings', authMiddleware(true), async (req, res) => {
   try {
-    const username = req.user.username; // Extract username from the token
-    if (!username) {
-      return res.status(400).json({ error: 'Username not found in token' });
-    }
-
-    const listings = await listingModel.find({ username }); // Filter listings by username
+    const listings = await listingModel.find({ 
+      username: req.user.username 
+    }).sort({ createdAt: -1 });
+    
     res.json(listings);
   } catch (err) {
-    console.error('Error in /my-listings:', err); // Log the error
-    res.status(500).json({ error: 'Internal Server Error', details: err });
+    console.error('Error fetching user listings:', err);
+    res.status(500).json({ error: 'Failed to fetch listings', details: err.message });
   }
 });
 
-// Upload a listing with an image and category
-app.post('/upload', authMiddleware, upload.single('image'), async (req, res) => {
-  const { title, description, price, category } = req.body;
-  const username = req.user.username; // Extract Username from the token
-
-  if (!username) {
-    return res.status(400).json({ error: 'Username not found in token' });
-  }
-
+// Send message
+app.post('/message', authMiddleware(true), async (req, res) => {
   try {
-    const image = req.file ? req.file.buffer.toString('base64') : null; // Convert image to Base64 string
+    const { recipient, message } = req.body;
+    
+    if (!recipient || !message) {
+      return res.status(400).json({ error: 'Recipient and message are required' });
+    }
 
-    const newListing = await listingModel.create({
-      title,
-      description,
-      price,
-      username,
-      image, // Save the Base64 string in the database
-      category, // Save the selected category
-    });
-
-    res.json({ message: 'Listing uploaded successfully!', data: newListing });
-  } catch (err) {
-    console.error('Error uploading listing:', err);
-    res.status(500).json({ error: 'Internal Server Error', details: err });
-  }
-});
-
-app.get('/listings/:id', authMiddleware, async (req, res) => {
-  try {
-      const listing = await listingModel.findById(req.params.id);
-      if (!listing) {
-          return res.status(404).json({ error: 'Listing not found' });
-      }
-      res.json(listing);
-  } catch (err) {
-      res.status(500).json({ error: 'Internal Server Error', details: err });
-  }
-});
-
-app.post('/message', authMiddleware, async (req, res) => {
-  const { recipient, message } = req.body;
-  const sender = req.user.username;
-
-  if (!sender) {
-    return res.status(400).json({ error: 'Sender not found in token' });
-  }
-
-  try {
     const newMessage = await messageModel.create({
-      sender,
+      sender: req.user.username,
       receiver: recipient,
       content: message,
+      createdAt: new Date()
     });
 
-    res.json({ message: 'Message sent successfully!', data: newMessage });
+    res.status(201).json({ 
+      message: 'Message sent successfully',
+      data: newMessage 
+    });
   } catch (err) {
-    console.error('Error saving message:', err);
-    res.status(500).json({ error: 'Internal Server Error', details: err });
+    console.error('Error sending message:', err);
+    res.status(500).json({ error: 'Failed to send message', details: err.message });
   }
 });
 
-app.listen(3001, () => {
-  console.log('server is running on port 3001');
+// Start server
+const PORT = process.env.PORT || 3001;
+app.listen(PORT, () => {
+  console.log(`Server is running on port ${PORT}`);
 });

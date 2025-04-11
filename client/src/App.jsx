@@ -13,7 +13,15 @@ import MyMessages from './MyMessages'
 import Account from './Account'
 import EditListing from './EditListing'
 import Electronics from './categories/electronics'
-
+import Furniture from './categories/furniture'
+import Clothing from './categories/clothing'
+import Books from './categories/Books'
+import Sports from './categories/Sports'
+import Vehicles from './categories/Vehicles'
+import Toys from './categories/Toys'
+import HomeAppliances from './categories/HomeAppliances'
+import Beauty from './categories/Beauty'
+import Pets from './categories/Pets'
 function App() {
   return (
     <BrowserRouter>
@@ -80,6 +88,15 @@ function App() {
           }
         />
         <Route path="/category/electronics" element={<Electronics />} />
+        <Route path="/category/furniture" element={<Furniture />} />
+        <Route path="/category/clothing" element={<Clothing />} />
+        <Route path="/category/books" element={<Books />} />
+        <Route path="/category/sports" element={<Sports />} />
+        <Route path="/category/vehicles" element={<Vehicles />} />
+        <Route path="/category/toys" element={<Toys />} />
+        <Route path="/category/home-appliances" element={<HomeAppliances />} />
+        <Route path="/category/beauty" element={<Beauty />} />
+        <Route path="/category/pets" element={<Pets />} />
       </Routes>
     </BrowserRouter>
   )
