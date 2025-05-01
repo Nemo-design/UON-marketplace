@@ -104,7 +104,7 @@ function Home() {
                 {/* 欢迎区域 Welcome Box */}
                 <div className="flex-grow-1 d-flex align-items-center justify-content-center">
                     <div className="custom-border text-center">
-                        <h1 className="mb-4">Welcome to Market</h1>
+                        <h1 className="mb-4">Welcome to UON Community Market</h1>
 
                         <div className="d-flex flex-column gap-3">
                             <Link to="/login" className="btn btn-primary btn-lg">

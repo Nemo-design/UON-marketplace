@@ -220,6 +220,16 @@ app.post('/message', authMiddleware(true), async (req, res) => {
     res.status(500).json({ error: 'Failed to send message', details: err.message });
   }
 });
+// Get messages for the logged-in user
+app.get('/my-messages', authMiddleware(true), async (req, res) => {
+  try {
+    const messages = await messageModel.find({ receiver: req.user.username }).sort({ timestamp: -1 });
+    res.json(messages);
+  } catch (err) {
+    console.error('Error fetching messages:', err);
+    res.status(500).json({ error: 'Failed to fetch messages', details: err.message });
+  }
+});
 
 // Start server
 const PORT = process.env.PORT || 3001;

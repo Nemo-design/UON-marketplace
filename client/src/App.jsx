@@ -87,16 +87,86 @@ function App() {
             </ProtectedRoute>
           }
         />
-        <Route path="/category/electronics" element={<Electronics />} />
-        <Route path="/category/furniture" element={<Furniture />} />
-        <Route path="/category/clothing" element={<Clothing />} />
-        <Route path="/category/books" element={<Books />} />
-        <Route path="/category/sports" element={<Sports />} />
-        <Route path="/category/vehicles" element={<Vehicles />} />
-        <Route path="/category/toys" element={<Toys />} />
-        <Route path="/category/home-appliances" element={<HomeAppliances />} />
-        <Route path="/category/beauty" element={<Beauty />} />
-        <Route path="/category/pets" element={<Pets />} />
+        <Route
+          path="/category/electronics"
+          element={
+            <ProtectedRoute>
+              <Electronics />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/category/furniture"
+          element={
+            <ProtectedRoute>
+              <Furniture />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/category/clothing"
+          element={
+            <ProtectedRoute>
+              <Clothing />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/category/books"
+          element={
+            <ProtectedRoute>
+              <Books />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/category/sports"
+          element={
+            <ProtectedRoute>
+              <Sports />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/category/vehicles"
+          element={
+            <ProtectedRoute>
+              <Vehicles />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/category/toys"
+          element={
+            <ProtectedRoute>
+              <Toys />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/category/home-appliances"
+          element={
+            <ProtectedRoute>
+              <HomeAppliances />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/category/beauty"
+          element={
+            <ProtectedRoute>
+              <Beauty />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/category/pets"
+          element={
+            <ProtectedRoute>
+              <Pets />
+            </ProtectedRoute>
+          }
+        />
       </Routes>
     </BrowserRouter>
   )
