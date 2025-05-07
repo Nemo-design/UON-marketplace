@@ -49,6 +49,7 @@ const Beauty = () => {
   }
 
   return (
+
     <div className="container mt-4">
       <h1 className="mb-4 text-center">Beauty Products</h1>
       <div className="row row-cols-1 row-cols-sm-2 row-cols-md-3 g-4">

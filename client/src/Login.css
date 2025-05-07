@@ -33,7 +33,11 @@
     padding: 10px;
     font-size: 1.2rem;
 }
-
+/* Message list */
+.messages-list {
+    background-color: #f8f9fa; /* Light gray background */
+    padding: 1rem; /* Add padding */
+}
 /* 侧边栏 Category Sidebar */
 .category-sidebar {
     border-right: 1px solid #dddfe2;

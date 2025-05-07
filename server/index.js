@@ -198,28 +198,32 @@ app.get('/my-listings', authMiddleware(true), async (req, res) => {
 // Send message
 app.post('/message', authMiddleware(true), async (req, res) => {
   try {
-    const { recipient, message } = req.body;
-    
+    const { recipient, message, listingTitle } = req.body;
+
+    // Validate required fields
     if (!recipient || !message) {
       return res.status(400).json({ error: 'Recipient and message are required' });
     }
 
+    // Create a new message
     const newMessage = await messageModel.create({
       sender: req.user.username,
       receiver: recipient,
       content: message,
-      createdAt: new Date()
+      listingTitle, // Include the listing title
+      createdAt: new Date(),
     });
 
-    res.status(201).json({ 
+    res.status(201).json({
       message: 'Message sent successfully',
-      data: newMessage 
+      data: newMessage,
     });
   } catch (err) {
     console.error('Error sending message:', err);
     res.status(500).json({ error: 'Failed to send message', details: err.message });
   }
 });
+
 // Get messages for the logged-in user
 app.get('/my-messages', authMiddleware(true), async (req, res) => {
   try {

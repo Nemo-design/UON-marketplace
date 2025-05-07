@@ -48,13 +48,7 @@ function Dashboard() {
                     <div className="collapse navbar-collapse" id="navbarNav">
                         <ul className="navbar-nav me-auto">
                             <li className="nav-item">
-                                <Link className="nav-link" to="/">Home</Link>
-                            </li>
-                            <li className="nav-item">
-                                <Link className="nav-link" to="/login">Login</Link>
-                            </li>
-                            <li className="nav-item">
-                                <Link className="nav-link" to="/register">Sign Up</Link>
+                                <Link className="nav-link" to="/dashboard">Home</Link>
                             </li>
                             <li className="nav-item">
                                 <Link className="nav-link" to="/upload">Create Listing</Link>
@@ -184,10 +178,14 @@ function Dashboard() {
                                                     <small className="text-muted">Posted by: {listing.username}</small>
                                                 </p>
                                                 <button
-                                                    className="btn btn-outline-primary w-100"
-                                                    onClick={() => navigate(`/send-message?recipient=${listing.username}`)} // Navigate to send-message
+                                                className="btn btn-outline-primary w-100"
+                                                onClick={() =>
+                                                    // Navigate to the send message page with query parameters
+                                                    // using the listing's username and title
+                                                    navigate(`/send-message?recipient=${listing.username}&listingTitle=${encodeURIComponent(listing.title)}&listingPrice=${listing.price}`)
+                                                }
                                                 >
-                                                    Send Message
+                                                Send Message
                                                 </button>
                                             </div>
                                         </div>
