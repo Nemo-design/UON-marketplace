@@ -74,6 +74,23 @@
     color: #1877f2;
 }
 
+/* Category Button Styles */
+.category-item button {
+    padding: 8px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.category-item button:hover {
+    color: #1877f2;
+    background-color: #f0f2f5;
+}
+
+.category-item button.active {
+    color: #1877f2;
+    font-weight: bold;
+}
+
 /* 搜索栏 Search Bar */
 .search-form {
     width: 800px;

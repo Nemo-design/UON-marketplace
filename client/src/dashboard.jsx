@@ -10,6 +10,7 @@ function Dashboard() {
     const [error, setError] = useState(null);
     const [searchTerm, setSearchTerm] = useState('');
     const [filteredListings, setFilteredListings] = useState([]);
+    const [selectedCategory, setSelectedCategory] = useState('all');
     const navigate = useNavigate();
 
     useEffect(() => {
@@ -40,25 +41,37 @@ function Dashboard() {
 
     const handleSearch = (e) => {
         e.preventDefault();
-        const filtered = listings.filter(listing =>
-            listing.title?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-            listing.description?.toLowerCase().includes(searchTerm.toLowerCase())
-        );
-        setFilteredListings(filtered);
+        filterListings(searchTerm, selectedCategory);
     };
 
     const handleSearchInput = (e) => {
         const value = e.target.value;
         setSearchTerm(value);
-        if (value === '') {
-            setFilteredListings(listings);
-        } else {
-            const filtered = listings.filter(listing =>
-                listing.title?.toLowerCase().includes(value.toLowerCase()) ||
-                listing.description?.toLowerCase().includes(value.toLowerCase())
+        filterListings(value, selectedCategory);
+    };
+
+    const handleCategoryClick = (category) => {
+        setSelectedCategory(category);
+        filterListings(searchTerm, category);
+    };
+
+    const filterListings = (search, category) => {
+        let filtered = [...listings];
+
+        if (search) {
+            filtered = filtered.filter(listing =>
+                listing.title?.toLowerCase().includes(search.toLowerCase()) ||
+                listing.description?.toLowerCase().includes(search.toLowerCase())
             );
-            setFilteredListings(filtered);
         }
+
+        if (category && category !== 'all') {
+            filtered = filtered.filter(listing =>
+                listing.category?.toLowerCase() === category.toLowerCase()
+            );
+        }
+
+        setFilteredListings(filtered);
     };
 
     return (
@@ -110,11 +123,26 @@ function Dashboard() {
                 <div className="category-sidebar bg-light p-3" style={{ width: '250px' }}>
                     <h5 className="mb-3">Categories</h5>
                     <ul className="list-unstyled">
+                        <li className="category-item" key="all">
+                            <button 
+                                onClick={() => handleCategoryClick('all')}
+                                className={`text-decoration-none border-0 bg-transparent w-100 text-start ${
+                                    selectedCategory === 'all' ? 'text-primary' : ''
+                                }`}
+                            >
+                                All Categories
+                            </button>
+                        </li>
                         {['Electronics', 'Furniture', 'Clothing', 'Books', 'Sports', 'Vehicles', 'Toys', 'Home Appliances', 'Beauty', 'Pets'].map((category) => (
                             <li className="category-item" key={category}>
-                                <Link to={`/category/${category.toLowerCase()}`} className="text-decoration-none">
+                                <button
+                                    onClick={() => handleCategoryClick(category.toLowerCase())}
+                                    className={`text-decoration-none border-0 bg-transparent w-100 text-start ${
+                                        selectedCategory === category.toLowerCase() ? 'text-primary' : ''
+                                    }`}
+                                >
                                     {category}
-                                </Link>
+                                </button>
                             </li>
                         ))}
                     </ul>
