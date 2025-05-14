@@ -1,51 +1,63 @@
 import React, { useState, useEffect } from 'react';
-import { useLocation, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { Link } from 'react-router-dom';
 import axios from 'axios';
 import 'bootstrap/dist/css/bootstrap.min.css';
-import './Login.css'; // Custom CSS
-
+import './MyMessages.css';
 
 const MyMessages = () => {
-  const [messages, setMessages] = useState([]);
+  const [messengers, setMessengers] = useState([]);
+  const [selectedMessenger, setSelectedMessenger] = useState(null);
   const navigate = useNavigate();
-  const [selectedMessage, setSelectedMessage] = useState(null); 
-  const [reply, setReply] = useState(''); // State for the reply input
 
   useEffect(() => {
-    const token = localStorage.getItem('token');
-    axios.get('http://localhost:3001/my-messages', {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    })
-      .then((res) => {
-        setMessages(res.data);
-      })
-      .catch((err) => {
-        console.log(err);
-      });
-  }, []);
-  const handleReplySubmit = async (e) => {
-    e.preventDefault();
+    const fetchMessengers = async () => {
+      const token = localStorage.getItem('token');
+      try {
+        const response = await axios.get('http://localhost:3001/my-messengers', {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
 
-    const token = localStorage.getItem('token');
-    const formData = {
-      recipient: selectedMessage.sender,
-      message: reply,
-      listingTitle: selectedMessage.listingTitle,
+        setMessengers(response.data);
+      } catch (err) {
+        console.error('Error fetching messengers:', err);
+      }
     };
 
+    fetchMessengers();
+  }, []);
+
+  const viewMessageHistory = (messenger) => {
+    console.log('Selected Messenger:', messenger); // Debugging log
+    setSelectedMessenger(messenger);
+  };
+
+  const handleReply = async (messageContent) => {
+    const token = localStorage.getItem('token');
     try {
-      const response = await axios.post('http://localhost:3001/message', formData, {
-        headers: {
-          Authorization: `Bearer ${token}`,
+      const response = await axios.post(
+        'http://localhost:3001/reply-message',
+        {
+          messengerId: selectedMessenger._id,
+          message: messageContent,
         },
-      });
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
       console.log('Reply sent successfully:', response.data);
-      setReply(''); // Clear the reply input
-    } catch (error) {
-      console.error('Error sending reply:', error);
+
+      // Update the selected messenger with the new message
+      setSelectedMessenger((prev) => ({
+        ...prev,
+        messages: [...prev.messages, response.data.data],
+      }));
+    } catch (err) {
+      console.error('Error sending reply:', err);
     }
   };
 
@@ -92,7 +104,7 @@ const MyMessages = () => {
 
       {/* Main Content */}
       <div className="flex-grow-1 d-flex">
-        {/* Categories */}
+        {/* Categories Sidebar */}
         <div className="category-sidebar bg-light p-3" style={{ width: '250px' }}>
           <h5 className="mb-3">Categories</h5>
           <ul className="list-unstyled">
@@ -149,20 +161,20 @@ const MyMessages = () => {
           </ul>
         </div>
 
-        {/* Main Content */}
-      <div className="messages-list" style={{ flexGrow: 1, padding: '20px' }}>
+        {/* Messages List */}
+        <div className="messages-list" style={{ flexGrow: 1, padding: '20px' }}>
           <h5 className="mb-3">My Messages</h5>
           <ul className="list-unstyled">
-            {messages.length > 0 ? (
-              messages.map((message) => (
+            {messengers.length > 0 ? (
+              messengers.map((messenger) => (
                 <li
-                  key={message._id}
+                  key={messenger._id}
                   className="category-item mb-3"
-                  onClick={() => setSelectedMessage(message)} // Set the selected message
+                  onClick={() => viewMessageHistory(messenger)} // Set the selected messenger
                   style={{ cursor: 'pointer' }}
                 >
-                  <h6>From: {message.sender}</h6>
-                  <p>Regarding: {message.listingTitle}</p>
+                  <h6>From: {messenger.senderId.Username}</h6>
+                  <p>Regarding: {messenger.listingId?.title || 'Unknown Listing'}</p>
                 </li>
               ))
             ) : (
@@ -171,24 +183,33 @@ const MyMessages = () => {
           </ul>
         </div>
 
-        {/* Selected Message Panel */}
+        {/* Selected Messenger Panel */}
         <div className="flex-grow-1 p-4">
-          {selectedMessage ? (
+          {selectedMessenger ? (
             <div className="custom-border p-4">
-              <h3>Message Details</h3>
-              <p>
-                <strong>From:</strong> {selectedMessage.sender}
-              </p>
-              <p>
-                <strong>Regarding:</strong> {selectedMessage.listingTitle}
-              </p>
-              <p>
-                <strong>Sent on:</strong> {new Date(selectedMessage.timestamp).toLocaleString()}
-              </p>
-              <p>{selectedMessage.content}</p>
+              <h3>Message History</h3>
+              <ul>
+                {selectedMessenger.messages.map((message) => (
+                  <li key={message._id}>
+                    <p>
+                      <strong>
+                        {message.senderId === localStorage.getItem('userId') ? 'You' : 'Them'}:
+                      </strong>{' '}
+                      {message.content}
+                    </p>
+                  </li>
+                ))}
+              </ul>
 
               {/* Reply Form */}
-              <form onSubmit={handleReplySubmit}>
+              <form
+                onSubmit={(e) => {
+                  e.preventDefault();
+                  const messageContent = e.target.elements.reply.value;
+                  handleReply(messageContent);
+                  e.target.reset();
+                }}
+              >
                 <div className="form-group mb-3">
                   <label htmlFor="reply" className="form-label">
                     Reply
@@ -199,8 +220,6 @@ const MyMessages = () => {
                     rows="3"
                     className="form-control"
                     required
-                    value={reply}
-                    onChange={(e) => setReply(e.target.value)}
                   ></textarea>
                 </div>
                 <button type="submit" className="btn btn-primary">
@@ -209,10 +228,10 @@ const MyMessages = () => {
               </form>
             </div>
           ) : (
-            <p>Select a message to view its details.</p>
+            <p>Select a user to view their messages.</p>
           )}
         </div>
-      </div> 
+      </div>
     </div>
   );
 };

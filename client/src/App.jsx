@@ -7,6 +7,7 @@ import Dashboard from './dashboard'
 import MyListings from './MyListings'
 import Upload from './Upload'
 import Home from './Home'
+import ListingMessages from './ListingMessages'
 import ProtectedRoute from './ProtectedRoute'
 import SendMessage from './Message'
 import MyMessages from './MyMessages'
@@ -76,6 +77,14 @@ function App() {
           element={
             <ProtectedRoute>
               <Account />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/listing/:listingId/messages"
+          element={
+            <ProtectedRoute>
+              <ListingMessages />
             </ProtectedRoute>
           }
         />

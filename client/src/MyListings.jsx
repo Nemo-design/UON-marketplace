@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
+import './MyListings.css';
 
 const MyListings = () => {
   const [listings, setListings] = useState([]);
@@ -47,9 +48,13 @@ const MyListings = () => {
   const goToDashboard = () => {
     navigate('/dashboard');
   };
+  const goToMessages = (listingId) => {
+    navigate(`/listing/${listingId}/messages`); // Redirect to the messages page for the listing
+  }
 
   return (
     <div>
+      
       <h1>My Listings</h1>
       <button onClick={goToDashboard}>Home</button>
       <button onClick={createListing}>Create Listing</button>
@@ -70,6 +75,7 @@ const MyListings = () => {
                 )}
                 <button onClick={() => handleEdit(listing._id)}>Edit</button>
                 <button onClick={() => handleDelete(listing._id)}>Delete</button>
+                <button onClick={() => goToMessages(listing._id)}>Messages</button>
               </li>
             ))}
           </ul>

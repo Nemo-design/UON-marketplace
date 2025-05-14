@@ -182,7 +182,7 @@ function Dashboard() {
                                                 onClick={() =>
                                                     // Navigate to the send message page with query parameters
                                                     // using the listing's username and title
-                                                    navigate(`/send-message?recipient=${listing.username}&listingTitle=${encodeURIComponent(listing.title)}&listingPrice=${listing.price}`)
+                                                    navigate(`/send-message?recipient=${listing.username}&receiverId=${listing.ownerId}&listingId=${listing._id}&listingTitle=${listing.title}`)
                                                 }
                                                 >
                                                 Send Message

@@ -9,6 +9,11 @@ const listingSchema = new mongoose.Schema({
         type: String,
         required: true
     },
+    ownerId: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'comp', // Reference to the User model
+        required: true,
+    },
     price: {
         type: String,
         required: true
@@ -21,6 +26,16 @@ const listingSchema = new mongoose.Schema({
         type: String, // Store the image URL or Base64 string
         required: false // Changed to false to make it optional
     },
+    // messages is an array of ObjectId references to the Message model
+messengers: {
+  type: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'messenger',
+    },
+  ],
+  default: [], // Default value is an empty array
+},
     category: {
         type: String,
         required: true,

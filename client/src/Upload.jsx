@@ -15,12 +15,14 @@ function Upload() {
     e.preventDefault();
 
     const username = localStorage.getItem('username'); // Get the username from local storage
+    const ownerId = localStorage.getItem('userId');
 
     const formData = new FormData(); // Use FormData for file upload
     formData.append('title', title);
     formData.append('description', description);
     formData.append('price', price);
     formData.append('username', username);
+    formData.append('ownerId', ownerId); // Append the ownerId
     formData.append('category', category); // Append the selected category
     if (image) {
       formData.append('image', image); // Append the image file
