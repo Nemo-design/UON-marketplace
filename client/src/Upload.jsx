@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
+import './Upload.css';
 
 function Upload() {
   const [title, setTitle] = useState('');
@@ -15,14 +16,12 @@ function Upload() {
     e.preventDefault();
 
     const username = localStorage.getItem('username'); // Get the username from local storage
-    const ownerId = localStorage.getItem('userId');
 
     const formData = new FormData(); // Use FormData for file upload
     formData.append('title', title);
     formData.append('description', description);
     formData.append('price', price);
     formData.append('username', username);
-    formData.append('ownerId', ownerId); // Append the ownerId
     formData.append('category', category); // Append the selected category
     if (image) {
       formData.append('image', image); // Append the image file
@@ -45,8 +44,8 @@ function Upload() {
   };
 
   return (
-    <div>
-      <h1>Upload Page</h1>
+    <div className="upload-container">
+    <h1>Upload Page</h1>
       <form onSubmit={handleSubmit}>
         <div className="form-group">
           <label htmlFor="Title">Listing Title</label>
@@ -110,7 +109,18 @@ function Upload() {
             onChange={(e) => setImage(e.target.files[0])} // Set the selected file
           />
         </div>
-        <button type="submit">Upload</button>
+        <div className="button-row">
+          <button type="submit" className="upload-button">
+            Upload
+          </button>
+          <button
+              type="button"
+              className="return-button"
+              onClick={() => navigate('/dashboard')}
+          >
+            Return
+          </button>
+        </div>
       </form>
     </div>
   );
