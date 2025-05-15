@@ -186,7 +186,7 @@ function Dashboard() {
                                                     </p>
                                                     <button
                                                         className="btn btn-outline-primary w-100"
-                                                        onClick={() => navigate(`/send-message?recipient=${listing.username}&listingTitle=${encodeURIComponent(listing.title)}&listingPrice=${listing.price}`)}
+                                                        onClick={() => navigate(`/send-message?recipient=${listing.username}&receiverId=${listing.ownerId}&listingId=${listing._id}&listingTitle=${listing.title}`)}
                                                     >
                                                         Send Message
                                                     </button>

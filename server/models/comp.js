@@ -12,7 +12,7 @@ const compSchema = new mongoose.Schema({
     Password: {
         type: String,
         required: true
-    }
+    }, 
 });
 
 const compModel = mongoose.model('comp', compSchema);

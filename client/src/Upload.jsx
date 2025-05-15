@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
+import './Upload.css';
 
 function Upload() {
   const [title, setTitle] = useState('');
@@ -43,8 +44,8 @@ function Upload() {
   };
 
   return (
-    <div>
-      <h1>Upload Page</h1>
+    <div className="upload-container">
+    <h1>Upload Page</h1>
       <form onSubmit={handleSubmit}>
         <div className="form-group">
           <label htmlFor="Title">Listing Title</label>
@@ -108,7 +109,18 @@ function Upload() {
             onChange={(e) => setImage(e.target.files[0])} // Set the selected file
           />
         </div>
-        <button type="submit">Upload</button>
+        <div className="button-row">
+          <button type="submit" className="upload-button">
+            Upload
+          </button>
+          <button
+              type="button"
+              className="return-button"
+              onClick={() => navigate('/dashboard')}
+          >
+            Return
+          </button>
+        </div>
       </form>
     </div>
   );

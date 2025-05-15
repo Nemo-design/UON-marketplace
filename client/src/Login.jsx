@@ -17,9 +17,10 @@ function Login() {
                 if (res.data.token) {
                     localStorage.setItem('token', res.data.token);
                     localStorage.setItem('username', res.data.username); // Store the username in local storage
+                    localStorage.setItem('userId', res.data.userId); // Store the user ID in local storage
                     navigate('/dashboard');
-                } else {
-                    alert('Login failed. Please check your credentials and try again.');
+                    } else {
+                        alert('Login failed. Please check your credentials and try again.');
                 }
             })
             .catch((err) => {

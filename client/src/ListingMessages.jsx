@@ -1,57 +1,64 @@
-import React, { useState } from 'react';
-import { useLocation, useNavigate } from 'react-router-dom';
+import React, { useEffect, useState } from 'react';
+import { useParams, useNavigate } from 'react-router-dom';
 import { Link } from 'react-router-dom';
 import axios from 'axios';
 import 'bootstrap/dist/css/bootstrap.min.css';
-import './Login.css'; // Custom CSS
+import './MyMessages.css'; // Reuse the same CSS as MyMessages
 
-function SendMessage() {
-  const [message, setMessage] = useState('');
-  const [feedback, setFeedback] = useState('');
+const ListingMessages = () => {
+  const { listingId } = useParams(); // Get the listing ID from the URL
+  const [messengers, setMessengers] = useState([]);
+  const [selectedMessenger, setSelectedMessenger] = useState(null);
   const navigate = useNavigate();
 
-  const location = useLocation();
-  const queryParams = new URLSearchParams(location.search);
-  const sender = localStorage.getItem('username');
-  const receiver = queryParams.get('recipient');
-  const listingTitle = queryParams.get('listingTitle');
-  const listingId = queryParams.get('listingId');
-  const receiverId = queryParams.get('receiverId');
-  console.log('Receiver ID:', receiverId); // Debugging line
-  console.log('Sender:', sender); // Debugging line
-  const senderId = localStorage.getItem('userId');
+  useEffect(() => {
+    const fetchMessengers = async () => {
+      const token = localStorage.getItem('token');
+      try {
+        const response = await axios.get(`http://localhost:3001/listing/${listingId}/messengers`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+        setMessengers(response.data);
+      } catch (err) {
+        console.error('Error fetching messengers:', err); 
+      }
+    };
 
-  const username = localStorage.getItem('username');
+    fetchMessengers();
+  }, [listingId]);
 
-const handleSubmit = async (e) => {
-  e.preventDefault();
-
-  const formData = {
-    receiverId,
-    senderId,
-    message,
-    listingTitle,
-    listingId,
+  const viewMessageHistory = (messenger) => {
+    setSelectedMessenger(messenger);
   };
 
-  console.log('Form data:', formData); // Debugging: Log the form data
+  const handleReply = async (messageContent) => {
+    const token = localStorage.getItem('token');
+    try {
+      const response = await axios.post(
+        'http://localhost:3001/reply-message',
+        {
+          messengerId: selectedMessenger._id,
+          message: messageContent,
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+      console.log('Reply sent successfully:', response.data);
 
-  const token = localStorage.getItem('token');
-  try {
-    const response = await axios.post('http://localhost:3001/send-message', formData, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    });
-    console.log('Message sent successfully:', response.data);
-    setFeedback('Message sent successfully!');
-  } catch (error) {
-    console.error('Error sending message:', error);
-    setFeedback('Failed to send the message. Please try again.');
-  }
-  navigate('/my-messages'); // Redirect to the messages page after sending
-  setMessage(''); // Clear the message input
-};
+      // Update the selected messenger with the new message
+      setSelectedMessenger((prev) => ({
+        ...prev,
+        messages: [...prev.messages, response.data.data],
+      }));
+    } catch (err) {
+      console.error('Error sending reply:', err);
+    }
+  };
 
   return (
     <div className="min-vh-100 d-flex flex-column">
@@ -153,46 +160,78 @@ const handleSubmit = async (e) => {
           </ul>
         </div>
 
-        {/* Send Message */}
+        {/* Messages List */}
+        <div className="messages-list" style={{ flexGrow: 1, padding: '20px' }}>
+          <h5 className="mb-3">Users Who Messaged</h5>
+          <ul className="list-unstyled">
+            {messengers.length > 0 ? (
+              messengers.map((messenger) => (
+                <li
+                  key={messenger._id}
+                  className="category-item mb-3"
+                  onClick={() => viewMessageHistory(messenger)} // Set the selected messenger
+                  style={{ cursor: 'pointer' }}
+                >
+                  <h6>From: {messenger.senderId.Username}</h6>
+                </li>
+              ))
+            ) : (
+              <p>No messages found for this listing.</p>
+            )}
+          </ul>
+        </div>
+
+        {/* Selected Messenger Panel */}
         <div className="flex-grow-1 p-4">
+          {selectedMessenger ? (
             <div className="custom-border p-4">
-                <h3 className="mb-4">Send Message</h3>
-                <p className="text-muted">You can send a message to the seller regarding this listing.</p>
-                <p>Sending a message to: <strong>{receiver}</strong></p>
-                {listingTitle && (
-                    <p>Regarding item: <strong>{listingTitle}</strong></p>
-                )}
-                <form onSubmit={handleSubmit}>
-                    <div className="form-group mb-3">
-                    <label htmlFor="message" className="form-label">
-                        Message
-                    </label>
-                    <textarea
-                        id="message"
-                        name="message"
-                        rows="5"
-                        className="form-control"
-                        required
-                        value={message}
-                        onChange={(e) => setMessage(e.target.value)}
-                    ></textarea>
-                    </div>
-                    <div className="d-flex justify-content-center">
-                    <button type="submit" className="btn btn-primary w-50">
-                        Send
-                    </button>
-                    </div>
-                </form>
-                {feedback && (
-                    <div className="alert alert-info mt-4">
-                    {feedback}
-                    </div>
-                )}
+              <h3>Message History</h3>
+              <ul>
+                {selectedMessenger.messages.map((message) => (
+                  <li key={message._id}>
+                    <p>
+                      <strong>
+                        {message.senderId === localStorage.getItem('userId') ? 'You' : 'Them'}:
+                      </strong>{' '}
+                      {message.content}
+                    </p>
+                  </li>
+                ))}
+              </ul>
+
+              {/* Reply Form */}
+              <form
+                onSubmit={(e) => {
+                  e.preventDefault();
+                  const messageContent = e.target.elements.reply.value;
+                  handleReply(messageContent);
+                  e.target.reset();
+                }}
+              >
+                <div className="form-group mb-3">
+                  <label htmlFor="reply" className="form-label">
+                    Reply
+                  </label>
+                  <textarea
+                    id="reply"
+                    name="reply"
+                    rows="3"
+                    className="form-control"
+                    required
+                  ></textarea>
+                </div>
+                <button type="submit" className="btn btn-primary">
+                  Send Reply
+                </button>
+              </form>
             </div>
+          ) : (
+            <p>Select a user to view their messages.</p>
+          )}
         </div>
       </div>
     </div>
   );
-}
+};
 
-export default SendMessage;
+export default ListingMessages;
