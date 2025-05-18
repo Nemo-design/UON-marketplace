@@ -23,6 +23,7 @@ import Toys from './categories/Toys'
 import HomeAppliances from './categories/HomeAppliances'
 import Beauty from './categories/Beauty'
 import Pets from './categories/Pets'
+import Profile from './Profile.jsx';
 function App() {
   return (
     <BrowserRouter>
@@ -176,6 +177,14 @@ function App() {
             </ProtectedRoute>
           }
         />
+          <Route
+              path="/profile"
+              element={
+                  <ProtectedRoute>
+                      <Profile />
+                  </ProtectedRoute>
+              }
+          />
       </Routes>
     </BrowserRouter>
   )

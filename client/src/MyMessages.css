@@ -102,3 +102,113 @@ body {
       font-size: 0.95rem;
     }
   }
+
+/* 消息卡片列表 */
+.message-card {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: #fff;
+  border-radius: 10px;
+  box-shadow: 0 1px 6px rgba(0,0,0,0.06);
+  padding: 18px 24px;
+  margin-bottom: 16px;
+  transition: box-shadow 0.2s;
+}
+
+.message-card:hover {
+  box-shadow: 0 4px 18px rgba(24,119,242,0.07);
+}
+
+.message-content {
+  flex: 1;
+  min-width: 0;
+}
+
+.message-title {
+  font-size: 1.05rem;
+  font-weight: 600;
+  margin-bottom: 2px;
+  color: #1c1e21;
+}
+
+.message-subtitle {
+  color: #606770;
+  font-size: 1rem;
+  margin-bottom: 0;
+}
+
+.delete-btn {
+  min-width: 40px;
+  padding: 5px 18px;
+  font-size: 1rem;
+  border-radius: 6px;
+  border: 1px solid #e41e3f;
+  color: #e41e3f;
+  background: #fff !important;
+  transition: background 0.2s, color 0.2s;
+  font-weight: 500;
+}
+
+.delete-btn:hover {
+  background: #e41e3f !important;
+  color: #fff !important;
+  border: 1px solid #e41e3f;
+}
+
+.category-sidebar {
+  background-color: #fff;
+  border-right: 1px solid #ddd;
+  padding: 16px;
+  width: 250px;
+}
+.category-sidebar h5 {
+  font-size: 1.1rem;
+  margin-bottom: 16px;
+  font-weight: 600;
+}
+.category-item {
+  margin-bottom: 8px;
+  max-width: 200px;
+  background-color: transparent;
+  box-shadow: none;
+  border: none;
+}
+.category-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  font-size: 1rem !important;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif !important;
+  background: none !important;
+  color: #333 !important;
+  border: none !important;
+  border-radius: 8px !important;
+  box-shadow: none !important;
+  transition: background 0.2s, color 0.2s;
+  width: 100%;
+  font-weight: 500 !important;
+  outline: none !important;
+}
+.category-btn:focus, .category-btn:active {
+  background: none !important;
+  color: #333 !important;
+  box-shadow: none !important;
+}
+.category-btn:hover {
+  background: #f0f2f5 !important;
+  color: #1877f2 !important;
+  text-decoration: none;
+}
+.category-btn.selected,
+.category-btn.text-primary {
+  background: none !important;
+  color: #333 !important;
+  font-weight: bold !important;
+}
+.category-btn svg {
+  color: #333 !important;
+}
+
+

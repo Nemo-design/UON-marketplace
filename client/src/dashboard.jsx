@@ -3,6 +3,11 @@ import { Link, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import './Dashboard.css';
+import {
+    FaLaptop, FaCouch, FaTshirt, FaBook,
+    FaBasketballBall, FaCar, FaPuzzlePiece,
+    FaBlender, FaHeart, FaDog, FaThLarge
+} from 'react-icons/fa';
 
 function Dashboard() {
     const [listings, setListings] = useState([]);
@@ -13,18 +18,29 @@ function Dashboard() {
     const [selectedCategory, setSelectedCategory] = useState('all');
     const navigate = useNavigate();
 
+    const categories = [
+        { name: 'All', path: '', icon: <FaThLarge /> },
+        { name: 'Electronics', path: 'electronics', icon: <FaLaptop /> },
+        { name: 'Furniture', path: 'furniture', icon: <FaCouch /> },
+        { name: 'Clothing', path: 'clothing', icon: <FaTshirt /> },
+        { name: 'Books', path: 'books', icon: <FaBook /> },
+        { name: 'Sports', path: 'sports', icon: <FaBasketballBall /> },
+        { name: 'Vehicles', path: 'vehicles', icon: <FaCar /> },
+        { name: 'Toys', path: 'toys', icon: <FaPuzzlePiece /> },
+        { name: 'Home Appliances', path: 'home-appliances', icon: <FaBlender /> },
+        { name: 'Beauty', path: 'beauty', icon: <FaHeart /> },
+        { name: 'Pets', path: 'pets', icon: <FaDog /> },
+    ];
+
     useEffect(() => {
         const fetchListings = async () => {
             try {
                 const response = await axios.get('http://localhost:3001/listings/all');
-                if (!response.data) {
-                    throw new Error('No data received');
-                }
+                if (!response.data) throw new Error('No data received');
                 setListings(response.data);
                 setFilteredListings(response.data);
                 setLoading(false);
             } catch (error) {
-                console.error('Error fetching listings:', error);
                 setError(error.message || 'Failed to fetch listings');
                 setLoading(false);
             }
@@ -57,91 +73,63 @@ function Dashboard() {
 
     const filterListings = (search, category) => {
         let filtered = [...listings];
-
         if (search) {
             filtered = filtered.filter(listing =>
                 listing.title?.toLowerCase().includes(search.toLowerCase()) ||
                 listing.description?.toLowerCase().includes(search.toLowerCase())
             );
         }
-
         if (category && category !== 'all') {
             filtered = filtered.filter(listing =>
                 listing.category?.toLowerCase() === category.toLowerCase()
             );
         }
-
         setFilteredListings(filtered);
     };
 
     return (
         <div className="min-vh-100 d-flex flex-column">
-            <nav className="navbar navbar-expand-lg navbar-light bg-light">
-                <div className="container-fluid">
+            <nav className="navbar">
+                <div className="d-flex align-items-center gap-4">
                     <a className="navbar-brand" href="#">Market</a>
-                    <button className="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-                        <span className="navbar-toggler-icon"></span>
-                    </button>
-                    <div className="collapse navbar-collapse" id="navbarNav">
-                        <ul className="navbar-nav me-auto">
-                            <li className="nav-item">
-                                <Link className="nav-link" to="/dashboard">Home</Link>
-                            </li>
-                            <li className="nav-item">
-                                <Link className="nav-link" to="/upload">Create Listing</Link>
-                            </li>
-                            <li className="nav-item">
-                                <Link className="nav-link" to="/my-messages">Messages</Link>
-                            </li>
-                            <li className="nav-item">
-                                <Link className="nav-link" to="/my-listings">My Listings</Link>
-                            </li>
-                        </ul>
-
-                        <form className="d-flex mx-auto search-form" onSubmit={handleSearch}>
-                            <input
-                                className="form-control me-2 search-input"
-                                type="search"
-                                placeholder="Search listings..."
-                                value={searchTerm}
-                                onChange={handleSearchInput}
-                                aria-label="Search"
-                            />
-                            <button className="btn search-btn" type="submit">
-                                Search
-                            </button>
-                        </form>
-
-                        <button className="btn btn-danger" onClick={handleLogout}>
-                            Logout
-                        </button>
-                    </div>
+                    <Link className="nav-link" to="/dashboard">Home</Link>
+                    <Link className="nav-link" to="/upload">Create Listing</Link>
+                    <Link className="nav-link" to="/my-messages">Messages</Link>
+                    <Link className="nav-link" to="/my-listings">My Listings</Link>
+                    <Link className="nav-link" to="/profile">Profile</Link>
+                </div>
+                <div className="d-flex align-items-center gap-3">
+                    <form className="search-form d-flex align-items-center" onSubmit={handleSearch}>
+                        <input
+                            className="search-input"
+                            type="search"
+                            placeholder="Search listings..."
+                            value={searchTerm}
+                            onChange={handleSearchInput}
+                            aria-label="Search"
+                        />
+                        <button className="search-btn" type="submit">Search</button>
+                    </form>
+                    <button className="btn btn-danger" onClick={handleLogout}>Logout</button>
                 </div>
             </nav>
 
             <div className="flex-grow-1 d-flex">
-                <div className="category-sidebar bg-light p-3" style={{ width: '250px' }}>
+                <div className="category-sidebar bg-light p-3">
                     <h5 className="mb-3">Categories</h5>
                     <ul className="list-unstyled">
-                        <li className="category-item" key="all">
-                            <button 
-                                onClick={() => handleCategoryClick('all')}
-                                className={`text-decoration-none border-0 bg-transparent w-100 text-start ${
-                                    selectedCategory === 'all' ? 'text-primary' : ''
-                                }`}
-                            >
-                                All Categories
-                            </button>
-                        </li>
-                        {['Electronics', 'Furniture', 'Clothing', 'Books', 'Sports', 'Vehicles', 'Toys', 'Home Appliances', 'Beauty', 'Pets'].map((category) => (
-                            <li className="category-item" key={category}>
+                        {categories.map(({ name, path, icon }) => (
+                            <li className="category-item" key={name}>
                                 <button
-                                    onClick={() => handleCategoryClick(category.toLowerCase())}
-                                    className={`text-decoration-none border-0 bg-transparent w-100 text-start ${
-                                        selectedCategory === category.toLowerCase() ? 'text-primary' : ''
-                                    }`}
+                                    to={path ? `/category/${path}` : `/dashboard`}
+                                    className={
+                                        "category-btn d-inline-flex align-items-center gap-2 text-decoration-none" +
+                                        (name !== 'All' && selectedCategory === name.toLowerCase() ? ' text-primary' : '')
+                                    }
+                                    onClick={() => handleCategoryClick(name.toLowerCase())}
                                 >
-                                    {category}
+                                    {icon}
+                                    {name}
                                 </button>
                             </li>
                         ))}
@@ -157,9 +145,7 @@ function Dashboard() {
                             <p className="mt-2">Loading listings...</p>
                         </div>
                     ) : error ? (
-                        <div className="alert alert-danger">
-                            Error: {error}
-                        </div>
+                        <div className="alert alert-danger">Error: {error}</div>
                     ) : (
                         <div className="row row-cols-1 row-cols-md-3 g-4">
                             {filteredListings.length > 0 ? (
@@ -178,12 +164,8 @@ function Dashboard() {
                                                 <h5 className="card-title">{listing.title}</h5>
                                                 <p className="card-text flex-grow-1">{listing.description}</p>
                                                 <div className="mt-auto">
-                                                    <p className="card-text">
-                                                        <strong className="text-primary">Price: ${listing.price}</strong>
-                                                    </p>
-                                                    <p className="card-text">
-                                                        <small className="text-muted">Posted by: {listing.username}</small>
-                                                    </p>
+                                                    <p className="card-text"><strong className="text-primary">Price: ${listing.price}</strong></p>
+                                                    <p className="card-text"><small className="text-muted">Posted by: {listing.username}</small></p>
                                                     <button
                                                         className="btn btn-outline-primary w-100"
                                                         onClick={() => navigate(`/send-message?recipient=${listing.username}&receiverId=${listing.ownerId}&listingId=${listing._id}&listingTitle=${listing.title}`)}
