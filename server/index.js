@@ -219,8 +219,21 @@ app.get('/my-listings', authMiddleware(true), async (req, res) => {
   }
 });
 
-
-    
+//delete message
+const handleDeleteChat = async (messengerId) => {
+  if (!window.confirm('Are you sure you want to delete this conversation?')) return;
+  const token = localStorage.getItem('token');
+  try {
+    await axios.delete(
+        `http://localhost:3001/messages/delete-chat/${messengerId}`,
+        { headers: { Authorization: `Bearer ${token}` } }
+    );
+    setMessengers(messengers.filter((m) => m._id !== messengerId));
+    setSelectedMessenger(null);
+  } catch (err) {
+    alert('Failed to delete chat');
+  }
+};
 
 // Send message
 app.post('/message', authMiddleware(true), async (req, res) => {
@@ -436,4 +449,22 @@ app.get('/my-messages', authMiddleware(true), async (req, res) => {
 const PORT = process.env.PORT || 3001;
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
+});
+
+
+// Delete a messenger (entire conversation) by ID
+app.delete('/delete-messenger/:messengerId', authMiddleware(true), async (req, res) => {
+  try {
+    const { messengerId } = req.params;
+    const messenger = await messengerModel.findByIdAndDelete(messengerId);
+    if (!messenger) {
+      return res.status(404).json({ error: 'Messenger not found' });
+    }
+    await messageModel.deleteMany({ _id: { $in: messenger.messages } });
+
+    res.json({ message: 'Conversation deleted successfully' });
+  } catch (err) {
+    console.error('Error deleting messenger:', err);
+    res.status(500).json({ error: 'Failed to delete conversation', details: err.message });
+  }
 });
