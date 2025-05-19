@@ -6,7 +6,7 @@ import './MyMessages.css';
 import {
   FaThLarge, FaLaptop, FaCouch, FaTshirt, FaBook,
   FaBasketballBall, FaCar, FaPuzzlePiece,
-  FaBlender, FaHeart, FaDog
+  FaBlender, FaHeart, FaDog, FaUserCircle
 } from 'react-icons/fa';
 
 const MyMessages = () => {
@@ -106,13 +106,20 @@ const MyMessages = () => {
             <Link className="nav-link" to="/upload">Create Listing</Link>
             <Link className="nav-link" to="/my-messages">Messages</Link>
             <Link className="nav-link" to="/my-listings">My Listings</Link>
-            <Link className="nav-link" to="/profile">Profile</Link>
           </div>
           <div className="d-flex align-items-center gap-3">
             <form className="search-form d-flex align-items-center" onSubmit={e => e.preventDefault()}>
               <input className="search-input" type="search" placeholder="Search" aria-label="Search" />
               <button className="search-btn" type="submit">Search</button>
             </form>
+            <Link
+                to="/profile"
+                className="nav-link p-0 d-flex align-items-center"
+                style={{ fontSize: '1.8rem' }}
+                title="Profile"
+            >
+              <FaUserCircle />
+            </Link>
             <button className="btn btn-danger" onClick={handleLogout}>Logout</button>
           </div>
         </nav>

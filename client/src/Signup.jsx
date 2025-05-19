@@ -31,15 +31,21 @@ function Signup() {
 
     const handleSubmit = (e) => {
         e.preventDefault();
-        axios.post('http://localhost:3001/register', { Username, Email, Password })
+        axios.post('http://localhost:3001/register', {
+            Username,
+            Email,
+            Password
+        })
             .then((res) => {
-                if (res.data.message === 'Success') {
-                    navigate('/login');
+                navigate('/login');
+            })
+            .catch((err) => {
+                if (err.response && err.response.data && err.response.data.error) {
+                    alert(err.response.data.error);
                 } else {
                     alert('Registration failed.');
                 }
-            })
-            .catch(() => alert('Registration failed.'));
+            });
     };
 
     return (

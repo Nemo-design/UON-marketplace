@@ -6,7 +6,7 @@ import './Dashboard.css';
 import {
     FaLaptop, FaCouch, FaTshirt, FaBook,
     FaBasketballBall, FaCar, FaPuzzlePiece,
-    FaBlender, FaHeart, FaDog, FaThLarge
+    FaBlender, FaHeart, FaDog, FaThLarge, FaUserCircle
 } from 'react-icons/fa';
 
 function Dashboard() {
@@ -96,7 +96,6 @@ function Dashboard() {
                     <Link className="nav-link" to="/upload">Create Listing</Link>
                     <Link className="nav-link" to="/my-messages">Messages</Link>
                     <Link className="nav-link" to="/my-listings">My Listings</Link>
-                    <Link className="nav-link" to="/profile">Profile</Link>
                 </div>
                 <div className="d-flex align-items-center gap-3">
                     <form className="search-form d-flex align-items-center" onSubmit={handleSearch}>
@@ -110,6 +109,14 @@ function Dashboard() {
                         />
                         <button className="search-btn" type="submit">Search</button>
                     </form>
+                    <Link
+                        to="/profile"
+                        className="nav-link p-0 d-flex align-items-center"
+                        style={{ fontSize: '1.8rem' }}
+                        title="Profile"
+                    >
+                        <FaUserCircle />
+                    </Link>
                     <button className="btn btn-danger" onClick={handleLogout}>Logout</button>
                 </div>
             </nav>
