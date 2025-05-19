@@ -468,3 +468,36 @@ app.delete('/delete-messenger/:messengerId', authMiddleware(true), async (req, r
     res.status(500).json({ error: 'Failed to delete conversation', details: err.message });
   }
 });
+
+// GET /profile
+app.get('/profile', async (req, res) => {
+  try {
+    const { Username } = req.query;
+    if (!Username) return res.status(400).json({ error: 'Missing Username' });
+    const user = await compModel.findOne({ Username });
+    if (!user) return res.status(404).json({ error: 'User not found' });
+    res.json(user);
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to fetch profile', details: err.message });
+  }
+});
+
+// POST /profile
+app.post('/profile', async (req, res) => {
+  try {
+    const { _id, Username, Email, Phone, Address } = req.body;
+    if (!_id) return res.status(400).json({ error: '_id is required' });
+
+    const updatedUser = await compModel.findByIdAndUpdate(
+        _id,
+        { $set: { Username, Email, Phone, Address } },
+        { new: true }
+    );
+    if (!updatedUser) return res.status(404).json({ error: 'User not found' });
+    res.json({ message: 'Profile updated', user: updatedUser });
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to update profile', details: err.message });
+  }
+});
+
+
