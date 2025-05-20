@@ -2,150 +2,94 @@ import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import 'bootstrap/dist/css/bootstrap.min.css';
-import './Login.css'; // 引入自定义 CSS
+import './Signup.css';
+import {
+    FaThLarge, FaLaptop, FaCouch, FaTshirt, FaBook,
+    FaBasketballBall, FaCar, FaPuzzlePiece,
+    FaBlender, FaHeart, FaDog
+} from 'react-icons/fa';
 
-function Login() {
-  const [Username, setUsername] = useState('');
-  const [Email, setEmail] = useState('');
-  const [Password, setPassword] = useState('');
-  const navigate = useNavigate();
+function Signup() {
+    const [Username, setUsername] = useState('');
+    const [Email, setEmail] = useState('');
+    const [Password, setPassword] = useState('');
+    const navigate = useNavigate();
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    axios.post('http://localhost:3001/register', { Username, Email, Password })
-        .then((res) => {
-          console.log(res);
-          navigate('/login');
+    const categories = [
+        { name: 'All', icon: <FaThLarge /> },
+        { name: 'Electronics', icon: <FaLaptop /> },
+        { name: 'Furniture', icon: <FaCouch /> },
+        { name: 'Clothing', icon: <FaTshirt /> },
+        { name: 'Books', icon: <FaBook /> },
+        { name: 'Sports', icon: <FaBasketballBall /> },
+        { name: 'Vehicles', icon: <FaCar /> },
+        { name: 'Toys', icon: <FaPuzzlePiece /> },
+        { name: 'Home Appliances', icon: <FaBlender /> },
+        { name: 'Beauty', icon: <FaHeart /> },
+        { name: 'Pets', icon: <FaDog /> }
+    ];
+
+    const handleSubmit = (e) => {
+        e.preventDefault();
+        axios.post('http://localhost:3001/register', {
+            Username,
+            Email,
+            Password
         })
-        .catch((err) => { console.log(err); });
-  };
+            .then((res) => {
+                navigate('/login');
+            })
+            .catch((err) => {
+                if (err.response && err.response.data && err.response.data.error) {
+                    alert(err.response.data.error);
+                } else {
+                    alert('Registration failed.');
+                }
+            });
+    };
+
     return (
         <div className="min-vh-100 d-flex flex-column">
-            {/* 导航栏 Navigation Bar */}
-            <nav className="navbar navbar-expand-lg navbar-light bg-light">
-                <div className="container-fluid">
+            <nav className="navbar">
+                <div className="d-flex align-items-center gap-4">
                     <a className="navbar-brand" href="#">Market</a>
-                    <button className="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-                        <span className="navbar-toggler-icon"></span>
-                    </button>
-                    <div className="collapse navbar-collapse" id="navbarNav">
-                        <ul className="navbar-nav me-auto">
-                            <li className="nav-item">
-                                <Link className="nav-link" to="/">Home</Link>
-                            </li>
-                            <li className="nav-item">
-                                <Link className="nav-link" to="/login">Login</Link>
-                            </li>
-                            <li className="nav-item">
-                                <Link className="nav-link" to="/register">Sign Up</Link>
-                            </li>
-                        </ul>
-
-                        {/* 搜索栏 Search Bar */}
-                        <form className="d-flex mx-auto search-form" role="search">
-                            <input
-                                className="form-control me-2 search-input"
-                                type="search"
-                                placeholder="Search"
-                                aria-label="Search"
-                            />
-                            <button className="btn search-btn" type="submit">
-                                Search
-                            </button>
-                        </form>
-                    </div>
+                    <Link className="nav-link" to="/">Home</Link>
+                    <Link className="nav-link" to="/login">Login</Link>
+                    <Link className="nav-link" to="/register">Sign Up</Link>
+                </div>
+                <div className="d-flex align-items-center gap-3">
+                    <form className="search-form d-flex align-items-center">
+                        <input className="search-input" type="search" placeholder="Search" />
+                        <button className="search-btn" type="submit">Search</button>
+                    </form>
                 </div>
             </nav>
 
-            {/* 主内容 Main Content */}
             <div className="flex-grow-1 d-flex">
-                {/* 类别栏 Categories */}
-                <div className="category-sidebar bg-light p-3" style={{ width: '250px' }}>
+                <div className="category-sidebar bg-light p-3">
                     <h5 className="mb-3">Categories</h5>
                     <ul className="list-unstyled">
-                        <li className="category-item">
-                            <Link to="/category/electronics" className="text-decoration-none">
-                                Electronics
-                            </Link>
-                        </li>
-                        <li className="category-item">
-                            <Link to="/category/furniture" className="text-decoration-none">
-                                Furniture
-                            </Link>
-                        </li>
-                        <li className="category-item">
-                            <Link to="/category/clothing" className="text-decoration-none">
-                                Clothing
-                            </Link>
-                        </li>
-                        <li className="category-item">
-                            <Link to="/category/books" className="text-decoration-none">
-                                Books
-                            </Link>
-                        </li>
-                        <li className="category-item">
-                            <Link to="/category/sports" className="text-decoration-none">
-                                Sports
-                            </Link>
-                        </li>
-                        <li className="category-item">
-                            <Link to="/category/vehicles" className="text-decoration-none">
-                                Vehicles
-                            </Link>
-                        </li>
-                        <li className="category-item">
-                            <Link to="/category/toys" className="text-decoration-none">
-                                Toys
-                            </Link>
-                        </li>
-                        <li className="category-item">
-                            <Link to="/category/home-appliances" className="text-decoration-none">
-                                Home Appliances
-                            </Link>
-                        </li>
-                        <li className="category-item">
-                            <Link to="/category/beauty" className="text-decoration-none">
-                                Beauty
-                            </Link>
-                        </li>
-                        <li className="category-item">
-                            <Link to="/category/pets" className="text-decoration-none">
-                                Pets
-                            </Link>
-                        </li>
+                        {categories.map(({ name, icon }) => (
+                            <li className="category-item" key={name}>
+                                <Link to={`/category/${name.toLowerCase().replace(/\s+/g, '-')}`} className="category-btn d-flex align-items-center gap-2">
+                                    {icon} {name}
+                                </Link>
+                            </li>
+                        ))}
                     </ul>
                 </div>
 
-                {/* LOGIN */}
                 <div className="flex-grow-1 d-flex align-items-center justify-content-center">
                     <div className="custom-border text-center">
-                        <h1 className="mb-4">Login to UON Community Market</h1>
-                        <form onSubmit={handleSubmit}>
-                        <div className="form-group">
-                          <input type="text" 
-                          id="username" 
-                          name="username" 
-                          placeholder='Username' 
-                          required onChange={(e) => setUsername(e.target.value)} />
-                        </div>
-                        <div className="form-group">
-                          <input type="email" 
-                          id="email" 
-                          name="email" 
-                          placeholder='Email' 
-                          required onChange={(e) => setEmail(e.target.value)} />
-                        </div>
-                        <div className="form-group">
-                          <input type="password" 
-                          id="password" 
-                          name="password" 
-                          placeholder='Password' 
-                          required onChange={(e) => setPassword(e.target.value)} />
-                        </div>
-                          <button type="submit" className="btn btn-success">Sign Up</button>
-                        <div>
-                        <Link to="/login">Already have an account? Log in</Link>
-                        </div>
+                        <h2>Create an Account</h2>
+                        <form onSubmit={handleSubmit} className="d-flex flex-column gap-3">
+                            <input type="text" placeholder="Username" required onChange={(e) => setUsername(e.target.value)} />
+                            <input type="email" placeholder="Email" required onChange={(e) => setEmail(e.target.value)} />
+                            <input type="password" placeholder="Password" required onChange={(e) => setPassword(e.target.value)} />
+                            <button type="submit">Sign Up</button>
+                            <div>
+                                <Link to="/login">Already have an account? Login</Link>
+                            </div>
                         </form>
                     </div>
                 </div>
@@ -154,4 +98,4 @@ function Login() {
     );
 }
 
-export default Login;
+export default Signup;

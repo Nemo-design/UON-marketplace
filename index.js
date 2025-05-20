@@ -1,6 +1,5 @@
 const express = require('express');
 const mongoose = require('mongoose');
-require('dotenv').config();
 const cors = require('cors');
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
@@ -9,7 +8,9 @@ const path = require('path');
 const compModel = require('./models/comp');
 const listingModel = require('./models/listing');
 const messageModel = require('./models/message');
+const messengerModel = require('./models/messenger');
 const authMiddleware = require('./middleware/authMiddleware');
+
 
 const app = express();
 app.use(express.json({ limit: '50mb' }));
@@ -23,7 +24,7 @@ const upload = multer({
 });
 
 // MongoDB connection
-mongoose.connect('mongodb+srv://c3414530:kong3317382718@cluster0.csaho.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0', {
+mongoose.connect('mongodb+srv://Comp3851:comp3851b@cluster0.csaho.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0', {
   useNewUrlParser: true,
   useUnifiedTopology: true,
 })
@@ -50,7 +51,7 @@ app.post('/login', async (req, res) => {
       { expiresIn: '24h' }
     );
     
-    res.json({ token, username: user.Username });
+    res.json({ token, username: user.Username, userId: user._id });
   } catch (err) {
     console.error('Login error:', err);
     res.status(500).json({ error: 'Internal Server Error', details: err.message });
@@ -65,6 +66,27 @@ app.post('/register', async (req, res) => {
   } catch (err) {
     console.error('Registration error:', err);
     res.status(500).json({ error: 'Registration failed', details: err.message });
+  }
+});
+// Messenger endpoint creates new messenger on intial message regarding a listing
+app.post('/messenger', async (req, res) => {
+  try {
+    const { listingId } = req.body;
+    const newMessenger = await messengerModel.create({ listingId });
+    res.json(newMessenger);
+  } catch (err) {
+    console.error('Messenger error:', err);
+    res.status(500).json({ error: 'Messenger creation failed', details: err.message });
+  }
+});
+
+app.post('/Message', async (req, res) => {
+  try {
+    const newMessenger = await messengerModelModel.create(req.body);
+    res.json(newMessenger);
+  } catch (err) {
+    console.error('Message error:', err);
+    res.status(500).json({ error: 'Message failed', details: err.message });
   }
 });
 
@@ -96,6 +118,7 @@ app.post('/upload', authMiddleware(false), upload.single('image'), async (req, r
     const listingData = {
       title,
       description,
+      ownerId: req.user._id,
       price,
       category,
       username: req.user ? req.user.username : 'Anonymous',
@@ -121,20 +144,6 @@ app.post('/upload', authMiddleware(false), upload.single('image'), async (req, r
       error: 'Failed to create listing',
       details: err.message 
     });
-  }
-});
-
-// Delete a message
-app.delete('/message/:id', authMiddleware(true), async (req, res) => {
-  try {
-    const message = await messageModel.findByIdAndDelete(req.params.id);
-    if (!message) {
-      return res.status(404).json({ error: 'Message not found' });
-    }
-    res.json({ message: 'Message deleted successfully' });
-  } catch (err) {
-    console.error('Error deleting message:', err);
-    res.status(500).json({ error: 'Failed to delete message', details: err.message });
   }
 });
 
@@ -210,6 +219,22 @@ app.get('/my-listings', authMiddleware(true), async (req, res) => {
   }
 });
 
+//delete message
+const handleDeleteChat = async (messengerId) => {
+  if (!window.confirm('Are you sure you want to delete this conversation?')) return;
+  const token = localStorage.getItem('token');
+  try {
+    await axios.delete(
+        `http://localhost:3001/messages/delete-chat/${messengerId}`,
+        { headers: { Authorization: `Bearer ${token}` } }
+    );
+    setMessengers(messengers.filter((m) => m._id !== messengerId));
+    setSelectedMessenger(null);
+  } catch (err) {
+    alert('Failed to delete chat');
+  }
+};
+
 // Send message
 app.post('/message', authMiddleware(true), async (req, res) => {
   try {
@@ -220,7 +245,7 @@ app.post('/message', authMiddleware(true), async (req, res) => {
       return res.status(400).json({ error: 'Recipient and message are required' });
     }
 
-    // Create a new message
+    // Create a new message object
     const newMessage = await messageModel.create({
       sender: req.user.username,
       receiver: recipient,
@@ -239,6 +264,176 @@ app.post('/message', authMiddleware(true), async (req, res) => {
   }
 });
 
+app.post('/send-message', authMiddleware(true), async (req, res) => {
+  try {
+    console.log('Request body:', req.body); // Debugging log
+    const { listingId, message, receiverId } = req.body;
+    const senderId = req.user._id;
+
+    // Check if a messenger already exists
+    const existingMessenger = await messengerModel.findOne({
+      $and: [
+        { listingId },
+        {
+          $or: [
+            { senderId, receiverId },
+            { senderId: receiverId, receiverId: senderId },
+          ],
+        },
+      ],
+    });
+
+    console.log('Existing Messenger:', existingMessenger); // Debugging log
+
+    if (existingMessenger) {
+      return res.status(400).json({ error: 'Messenger already exists. Use the reply endpoint.' });
+    }
+
+    // Create a new messenger
+    const newMessenger = await messengerModel.create({
+      senderId,
+      receiverId,
+      listingId,
+      messages: [], // Initialize with an empty array
+    });
+
+    console.log('New Messenger Created:', newMessenger); // Debugging log
+
+    // Create the first message
+    const newMessage = await messageModel.create({
+      senderId,
+      receiverId,
+      content: message,
+      listingId,
+    });
+
+    console.log('New Message Created:', newMessage); // Debugging log
+
+    // Add the new message to the messenger's messages array
+    newMessenger.messages.push(newMessage._id);
+    await newMessenger.save();
+    console.log('Message added to messenger:', newMessenger); // Debugging log
+
+    // Add the messenger to the listing
+    const listing = await listingModel.findById(listingId);
+    if (!listing) {
+      console.log('Listing not found for listingId:', listingId); // Debugging log
+      return res.status(404).json({ error: 'Listing not found' });
+    }
+
+    listing.messengers.push(newMessenger._id);
+    await listing.save();
+    console.log('Messenger added to listing:', listing); // Debugging log
+
+    res.status(201).json({
+      message: 'Message sent successfully',
+      data: newMessage,
+    });
+  } catch (err) {
+    console.error('Error in /send-message:', err); // Debugging log
+    res.status(500).json({ error: 'Failed to send message', details: err.message });
+  }
+});
+
+app.post('/reply-message', authMiddleware(true), async (req, res) => {
+  try {
+    const { messengerId, message } = req.body;
+    const senderId = req.user._id;
+
+    // Find the messenger
+    const messenger = await messengerModel.findById(messengerId);
+    if (!messenger) {
+      return res.status(404).json({ error: 'Messenger not found' });
+    }
+
+    // Create a new message
+    const newMessage = await messageModel.create({
+      senderId,
+      receiverId: messenger.receiverId === senderId ? messenger.senderId : messenger.receiverId,
+      content: message,
+      listingId: messenger.listingId,
+    });
+
+    // Add the new message to the messenger's messages array
+    messenger.messages.push(newMessage._id);
+    await messenger.save();
+
+    res.status(201).json({
+      message: 'Reply sent successfully',
+      data: newMessage,
+    });
+  } catch (err) {
+    console.error('Error replying to message:', err);
+    res.status(500).json({ error: 'Failed to reply to message', details: err.message });
+  }
+});
+
+app.get('/listing/:listingId/messengers', authMiddleware(true), async (req, res) => {
+  try {
+    const { listingId } = req.params;
+
+    console.log('Fetching messengers for listingId:', listingId); // Debugging log
+
+    // Find the listing and populate its messengers
+    const listing = await listingModel
+      .findById(listingId)
+      .populate({
+        path: 'messengers',
+        populate: [
+          { path: 'senderId', model: 'comp', select: 'Username' },
+          { path: 'receiverId', model: 'comp', select: 'Username' },
+          { path: 'messages', model: 'message', select: 'senderId content timestamp' },
+        ],
+      });
+
+    if (!listing) {
+      console.log('Listing not found for listingId:', listingId); // Debugging log
+      return res.status(404).json({ error: 'Listing not found' });
+    }
+    res.json(listing.messengers);
+  } catch (err) {
+    console.error('Error fetching messengers:', err); 
+    res.status(500).json({ error: 'Failed to fetch messengers', details: err.message });
+  }
+});
+
+app.get('/my-messengers', authMiddleware(true), async (req, res) => {
+  try {
+    const userId = req.user._id;
+
+    // Find all messengers where the user is either the sender or the receiver
+    const messengers = await messengerModel
+      .find({
+        $or: [{ senderId: userId }, { receiverId: userId }],
+      })
+      .populate([
+        { path: 'senderId', model: 'comp', select: 'Username' },
+        { path: 'receiverId', model: 'comp', select: 'Username' },
+        { path: 'messages', model: 'message', select: 'content timestamp senderId' },
+        { path: 'listingId', model: 'listing', select: 'title' }, // Populate listing title
+      ]);
+
+    res.json(messengers);
+  } catch (err) {
+    console.error('Error fetching messengers:', err);
+    res.status(500).json({ error: 'Failed to fetch messengers', details: err.message });
+  }
+});
+// Get messages between two users
+app.get('/messages/:messengerId', authMiddleware(true), async (req, res) => {
+  try {
+    const { messengerId } = req.params;
+    const messenger = await messengerModel.findById(messengerId).populate('messages');  // Populate the messages field
+    if (!messenger) {
+      return res.status(404).json({ error: 'Messenger not found' });
+    }
+    res.json(messenger);
+  } catch (err) {
+    console.error('Error fetching messages:', err);
+    res.status(500).json({ error: 'Failed to fetch messages', details: err.message });
+  }
+});
+
 // Get messages for the logged-in user
 app.get('/my-messages', authMiddleware(true), async (req, res) => {
   try {
@@ -254,4 +449,22 @@ app.get('/my-messages', authMiddleware(true), async (req, res) => {
 const PORT = process.env.PORT || 3001;
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
+});
+
+
+// Delete a messenger (entire conversation) by ID
+app.delete('/delete-messenger/:messengerId', authMiddleware(true), async (req, res) => {
+  try {
+    const { messengerId } = req.params;
+    const messenger = await messengerModel.findByIdAndDelete(messengerId);
+    if (!messenger) {
+      return res.status(404).json({ error: 'Messenger not found' });
+    }
+    await messageModel.deleteMany({ _id: { $in: messenger.messages } });
+
+    res.json({ message: 'Conversation deleted successfully' });
+  } catch (err) {
+    console.error('Error deleting messenger:', err);
+    res.status(500).json({ error: 'Failed to delete conversation', details: err.message });
+  }
 });

@@ -2,20 +2,21 @@ import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import 'bootstrap/dist/css/bootstrap.min.css';
-import './Login.css';
+import './Signup.css';
 import {
-    FaLaptop, FaCouch, FaTshirt, FaBook,
+    FaThLarge, FaLaptop, FaCouch, FaTshirt, FaBook,
     FaBasketballBall, FaCar, FaPuzzlePiece,
-    FaBlender, FaHeart, FaDog, FaThLarge
+    FaBlender, FaHeart, FaDog
 } from 'react-icons/fa';
 
-function Login() {
+function Signup() {
+    const [Username, setUsername] = useState('');
     const [Email, setEmail] = useState('');
     const [Password, setPassword] = useState('');
     const navigate = useNavigate();
 
     const categories = [
-        { name: 'All', icon: <FaThLarge />, path: '/dashboard' },
+        { name: 'All', icon: <FaThLarge /> },
         { name: 'Electronics', icon: <FaLaptop /> },
         { name: 'Furniture', icon: <FaCouch /> },
         { name: 'Clothing', icon: <FaTshirt /> },
@@ -28,22 +29,17 @@ function Login() {
         { name: 'Pets', icon: <FaDog /> }
     ];
 
-    const handleSubmit = async (e) => {
+    const handleSubmit = (e) => {
         e.preventDefault();
-        axios.post('http://localhost:3001/login', { Email, Password })
+        axios.post('http://localhost:3001/register', { Username, Email, Password })
             .then((res) => {
-                if (res.data.token) {
-                    localStorage.setItem('token', res.data.token);
-                    localStorage.setItem('username', res.data.username);
-                    localStorage.setItem('userId', res.data.userId);
-                    navigate('/dashboard');
+                if (res.data.message === 'Success') {
+                    navigate('/login');
                 } else {
-                    alert('Login failed. Please check your credentials and try again.');
+                    alert('Registration failed.');
                 }
             })
-            .catch(() => {
-                alert('Login failed. Please check your credentials and try again.');
-            });
+            .catch(() => alert('Registration failed.'));
     };
 
     return (
@@ -55,15 +51,9 @@ function Login() {
                     <Link className="nav-link" to="/login">Login</Link>
                     <Link className="nav-link" to="/register">Sign Up</Link>
                 </div>
-
                 <div className="d-flex align-items-center gap-3">
                     <form className="search-form d-flex align-items-center">
-                        <input
-                            className="search-input"
-                            type="search"
-                            placeholder="Search"
-                            aria-label="Search"
-                        />
+                        <input className="search-input" type="search" placeholder="Search" />
                         <button className="search-btn" type="submit">Search</button>
                     </form>
                 </div>
@@ -73,9 +63,9 @@ function Login() {
                 <div className="category-sidebar bg-light p-3">
                     <h5 className="mb-3">Categories</h5>
                     <ul className="list-unstyled">
-                        {categories.map(({ name, icon, path }) => (
-                            <li className="category-item" key={name} style={{ listStyle: 'none' }}>
-                                <Link to={path || `/category/${name.toLowerCase().replace(/\s+/g, '-')}`} className="category-btn text-decoration-none">
+                        {categories.map(({ name, icon }) => (
+                            <li className="category-item" key={name}>
+                                <Link to={`/category/${name.toLowerCase().replace(/\s+/g, '-')}`} className="category-btn d-flex align-items-center gap-2">
                                     {icon} {name}
                                 </Link>
                             </li>
@@ -85,13 +75,14 @@ function Login() {
 
                 <div className="flex-grow-1 d-flex align-items-center justify-content-center">
                     <div className="custom-border text-center">
-                        <h1 className="mb-4">Login to UON Community Market</h1>
+                        <h2>Create an Account</h2>
                         <form onSubmit={handleSubmit} className="d-flex flex-column gap-3">
-                            <input type="email" id="email" name="email" placeholder="Email" required onChange={(e) => setEmail(e.target.value)} className="form-control" />
-                            <input type="password" id="password" name="password" placeholder="Password" required onChange={(e) => setPassword(e.target.value)} className="form-control" />
-                            <button type="submit" className="btn btn-primary">Login</button>
+                            <input type="text" placeholder="Username" required onChange={(e) => setUsername(e.target.value)} />
+                            <input type="email" placeholder="Email" required onChange={(e) => setEmail(e.target.value)} />
+                            <input type="password" placeholder="Password" required onChange={(e) => setPassword(e.target.value)} />
+                            <button type="submit">Sign Up</button>
                             <div>
-                                <Link to="/register">Don't have an account? Sign up</Link>
+                                <Link to="/login">Already have an account? Login</Link>
                             </div>
                         </form>
                     </div>
@@ -101,4 +92,4 @@ function Login() {
     );
 }
 
-export default Login;
+export default Signup;
