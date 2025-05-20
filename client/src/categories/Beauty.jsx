@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
+import './Beauty.css';
 
 const Beauty = () => {
   const [listings, setListings] = useState([]);

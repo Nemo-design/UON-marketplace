@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import axios from 'axios';
+import './EditListing.css';
 
 function EditListing() {
     const { id } = useParams(); // Get the listing ID from the URL parameters
