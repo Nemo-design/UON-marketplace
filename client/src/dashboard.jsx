@@ -16,7 +16,7 @@ function Dashboard() {
     const [feedback, setFeedback] = useState('');
     const [message, setMessage] = useState('');
     const [error, setError] = useState(null);
-
+  const [searchTerm, setSearchTerm] = useState('');
     const [filteredListings, setFilteredListings] = useState([]);
     const [selectedCategory, setSelectedCategory] = useState('all');
     const navigate = useNavigate();
