@@ -90,7 +90,7 @@ body {
 .custom-popup-content {
     width: 600px;
     max-width: 95vw;
-    min-height: 500px;
+    min-height: 400px;
 }
 /* Blur and darken the background when popup is open */
 .popup-overlay {
@@ -105,7 +105,7 @@ body {
 }
 
 .category-item {
-    margin-bottom: 8px;
+    margin-bottom: 2px;
     max-width: 200px;
     background-color: transparent;
     box-shadow: none;
@@ -115,9 +115,9 @@ body {
 .category-btn {
     display: inline-flex;
     align-items: center;
-    gap: 8px;
-    padding: 8px 16px;
-    font-size: 1rem;
+    gap: 4px;
+    padding: 3px 10px;
+    font-size: 0.97rem;
     background: none !important;
     color: #333 !important;
     border: none !important;
@@ -128,13 +128,20 @@ body {
     font-weight: 500;
     outline: none !important;
 }
-
+.category-sidebar ul {
+    margin: 0;
+    padding: 0;
+}
 .category-btn:focus, .category-btn:active {
     background: none !important;
     color: #333 !important;
     box-shadow: none !important;
 }
-
+.category-sidebar .category-item {
+    margin-bottom: 2px;
+    padding: 0;
+    list-style: none;
+}
 .category-btn:hover {
     background: #f0f2f5 !important;
     color: #1877f2 !important;
@@ -179,6 +186,16 @@ body {
     object-fit: cover;
     display: flex;
     margin: 0 auto;
+}
+.btn-close {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    background: none;
+    border: none;
+    color: #333;
+    font-size: 1.2rem;
+    cursor: pointer;
 }
 .show-more-btn {
     color: #525558 !important;      

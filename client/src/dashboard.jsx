@@ -223,7 +223,7 @@ function Dashboard() {
                                                     <Popup trigger={<button className="btn btn-outline-primary w-100">Message</button>} modal nested>
                                                         {(close) => (
                                                             <div className="card p-4 custom-popup-content">
-                                                                <button className="btn-close" onClick={close} aria-label="Close"></button>
+                                                                <button className="btn-close" onClick={close} aria-label="Close" style={{ position: 'absolute', top: '10px', right: '10px'}}></button>
                                                                 <div style={{ display: 'flex', alignItems: 'center', gap: '18px', marginBottom: '20px' }}>
                                                                     
                                                                     <img
