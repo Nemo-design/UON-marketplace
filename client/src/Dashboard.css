@@ -189,13 +189,22 @@ body {
 }
 .btn-close {
     position: absolute;
-    top: 8px;
-    right: 8px;
-    background: none;
-    border: none;
-    color: #333;
-    font-size: 1.2rem;
+    top: 10px;
+    right: 10px;
+    width: 32px;
+    height: 32px;
+    border: white 2px solid !important;
+    background: #ffffff !important;
+    background: #f0f2f5 !important;
+    color: #e41e3f !important;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.3rem;
+    font-weight: bold;
     cursor: pointer;
+    padding: 0;
 }
 .show-more-btn {
     color: #525558 !important;      

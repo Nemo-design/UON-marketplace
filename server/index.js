@@ -450,7 +450,7 @@ app.get('/my-messengers', authMiddleware(true), async (req, res) => {
         { path: 'senderId', model: 'comp', select: 'Username' },
         { path: 'receiverId', model: 'comp', select: 'Username' },
         { path: 'messages', model: 'message', select: 'content timestamp senderId' },
-        { path: 'listingId', model: 'listing', select: 'title' }, // Populate listing title
+        { path: 'listingId', model: 'listing', select: 'title image' }, // Populate listing title and image
       ]);
 
     res.json(messengers);

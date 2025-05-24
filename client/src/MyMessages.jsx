@@ -95,6 +95,23 @@ const MyMessages = () => {
     localStorage.removeItem('username');
     navigate('/login');
   };
+    let otherUser = null;
+  let otherUsername = '';
+  if (selectedMessenger) {
+    const currentUserId = localStorage.getItem('userId');
+    const sender = selectedMessenger.senderId;
+    const receiver = selectedMessenger.receiverId;
+    const senderId = typeof sender === 'object' ? sender._id || sender.id : sender;
+    if (senderId === currentUserId) {
+      otherUser = receiver;
+    } else {
+      otherUser = sender;
+    }
+    otherUsername =
+      (typeof otherUser === 'object' && (otherUser.username || otherUser.Username)) ||
+      (typeof otherUser === 'object' && (otherUser._id || otherUser.id)) ||
+      otherUser;
+  }
 
   return (
       <div className="min-vh-100 d-flex flex-column">
@@ -180,6 +197,7 @@ const MyMessages = () => {
                     (typeof otherUser === 'object' && (otherUser.username || otherUser.Username)) ||
                     (typeof otherUser === 'object' && (otherUser._id || otherUser.id)) ||
                     otherUser;
+                
                   return (
                     <li
                       key={messenger._id}
@@ -200,28 +218,21 @@ const MyMessages = () => {
                       >
                         <div className="message-title" style={{ fontWeight: 500 }}>
                          {otherUsername}
-                        </div>
+                       </div>
                         <div className="message-subtitle" style={{ fontSize: '0.97rem', color: '#888' }}>
-                          Regarding: {messenger.listingId?.title || 'Unknown Listing'}
+                          {messenger.listingId?.image && (
+                            <img
+                              src={`data:image/jpeg;base64,${messenger.listingId.image}`}
+                              alt={messenger.listingId?.title || 'Listing'}
+                              style={{ width: '48px', height: '48px', objectFit: 'cover', borderRadius: '6px', marginRight: '12px' }}
+                            />
+                          )}
+                          {messenger.listingId?.title || 'Deleted Listing'}
                         </div>
                       </div>
                       <button
-                        className="delete-btn ms-3"
+                        className="delete-messenger-button "
                         onClick={() => handleDeleteConversation(messenger._id)}
-                        style={{
-                          border: 'none',
-                          background: '#f5f6fa',
-                          color: '#e41e3f',
-                          borderRadius: '50%',
-                          width: '36px',
-                          height: '36px',
-                          display: 'flex',
-                          alignItems: 'center',
-                          justifyContent: 'center',
-                          fontWeight: 'bold',
-                          fontSize: '1.15rem',
-                          transition: 'background 0.2s',
-                        }}
                         title="Delete Conversation"
                       >
                         ×
@@ -237,9 +248,11 @@ const MyMessages = () => {
 
           {/* ===== 选中消息面板 ===== */}
           <div className="flex-grow-1 p-4">
+            
             {selectedMessenger ? (
+              
                 <div className="custom-border p-4">
-                  <h3>Message History</h3>
+                  <h3>Message with {otherUsername}</h3>
                     <ul className="list-unstyled">
                       {selectedMessenger.messages.map((message) => {
                         const currentUserId = localStorage.getItem('userId');
@@ -262,7 +275,7 @@ const MyMessages = () => {
                         const senderUsername =
                           senderId === currentUserId
                             ? 'You'
-                            : (senderObj && (senderObj.username || senderObj.Username)) || 'Unknown';
+                            : (otherUsername) || 'Unknown';
 
                         return (
                           <li key={message._id} className="mb-2">
