@@ -179,7 +179,7 @@ app.delete('/listings/:id', authMiddleware(false), async (req, res) => {
 });
 
 // Edit a listing
-app.put('/listings/:id', authMiddleware(false), upload.single('image'), async (req, res) => {
+app.put('/listings/id/:id', authMiddleware(false), upload.single('image'), async (req, res) => {
   try {
     const { title, description, price, category } = req.body;
     const updateData = { title, description, price, category };
@@ -197,7 +197,6 @@ app.put('/listings/:id', authMiddleware(false), upload.single('image'), async (r
     if (!updatedListing) {
       return res.status(404).json({ error: 'Listing not found' });
     }
-
     res.json(updatedListing);
   } catch (err) {
     console.error('Error updating listing:', err);

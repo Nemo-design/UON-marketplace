@@ -25,7 +25,7 @@ function EditListing() {
         }
 
         const token = localStorage.getItem('token');
-        axios.put(`http://localhost:3001/listings/${id}`, formData, {
+        axios.put(`http://localhost:3001/listings/id/${id}`, formData, {
             headers: {
                 'Authorization': `Bearer ${token}`,
                 'Content-Type': 'multipart/form-data', // Set content type for file upload
@@ -43,7 +43,7 @@ function EditListing() {
     useEffect(() => {
         // Fetch the listing details
         const token = localStorage.getItem('token');
-        axios.get(`http://localhost:3001/listings/${id}`, {
+        axios.get(`http://localhost:3001/listings/id/${id}`, {
             headers: {
                 Authorization: `Bearer ${token}`,
             },
@@ -65,33 +65,37 @@ function EditListing() {
             <h1>Edit Listing</h1>
             <form onSubmit={handleSubmit}>
                 <div className="form-group">
-                    <label>Title</label>
+                    <label htmlFor="Title">Title</label>
                     <input
                         type="text"
+                        id="Title"
                         value={title}
                         onChange={(e) => setTitle(e.target.value)}
                         required
                     />
                 </div>
                 <div className="form-group">
-                    <label>Description</label>
-                    <textarea
+                    <label htmlFor="Description">Description</label>
+                    <input
+                        type="text"
+                        id="Description"
                         value={description}
                         onChange={(e) => setDescription(e.target.value)}
                         required
                     />
                 </div>
                 <div className="form-group">
-                    <label>Price</label>
+                    <label htmlFor="Price">Price</label>
                     <input
                         type="text"
+                        id="Price"
                         value={price}
                         onChange={(e) => setPrice(e.target.value)}
                         required
                     />
                 </div>
                 <div className="form-group">
-                    <label>Current Image</label>
+                    <label htmlFor="CurrentImage">Current Image</label>
                     {currentImage && (
                         <img
                             src={`data:image/jpeg;base64,${currentImage}`} // Render the current Base64 image
@@ -102,14 +106,16 @@ function EditListing() {
                 </div>
                 
                 <div className="form-group">
-                    <label>Upload New Image</label>
+                    <label htmlFor="NewImage">Upload New Image</label>
                     <input
+                        id="NewImage"
                         type="file"
                         accept="image/*"
                         onChange={(e) => setImage(e.target.files[0])} // Set the new image file
                     />
                 </div>
                 <button type="submit">Save Changes</button>
+                <button type="button" onClick={() => navigate('/my-listings')}>Cancel</button>
             </form>
         </div>
     );
