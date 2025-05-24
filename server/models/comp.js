@@ -19,6 +19,12 @@ const compSchema = new mongoose.Schema({
     Address: {
         type: String
     },
+    Favourites: [
+        {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: 'listing', // Reference to the listing model
+        }
+    ],
 });
 
 const compModel = mongoose.model('comp', compSchema);

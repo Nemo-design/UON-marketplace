@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import axios from 'axios';
-import './EditListing.css';
+import './Upload.css';
 
 function EditListing() {
     const { id } = useParams(); // Get the listing ID from the URL parameters
@@ -61,10 +61,10 @@ function EditListing() {
     }, [id]);
 
     return (
-        <div>
+        <div className='upload-container'>
             <h1>Edit Listing</h1>
             <form onSubmit={handleSubmit}>
-                <div>
+                <div className="form-group">
                     <label>Title</label>
                     <input
                         type="text"
@@ -73,7 +73,7 @@ function EditListing() {
                         required
                     />
                 </div>
-                <div>
+                <div className="form-group">
                     <label>Description</label>
                     <textarea
                         value={description}
@@ -81,7 +81,7 @@ function EditListing() {
                         required
                     />
                 </div>
-                <div>
+                <div className="form-group">
                     <label>Price</label>
                     <input
                         type="text"
@@ -90,7 +90,7 @@ function EditListing() {
                         required
                     />
                 </div>
-                <div>
+                <div className="form-group">
                     <label>Current Image</label>
                     {currentImage && (
                         <img
@@ -100,7 +100,8 @@ function EditListing() {
                         />
                     )}
                 </div>
-                <div>
+                
+                <div className="form-group">
                     <label>Upload New Image</label>
                     <input
                         type="file"

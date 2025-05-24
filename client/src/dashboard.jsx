@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import {Popup} from 'reactjs-popup';
 import axios from 'axios';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import './Dashboard.css';
@@ -12,11 +13,14 @@ import {
 function Dashboard() {
     const [listings, setListings] = useState([]);
     const [loading, setLoading] = useState(true);
+    const [feedback, setFeedback] = useState('');
+    const [message, setMessage] = useState('');
     const [error, setError] = useState(null);
-    const [searchTerm, setSearchTerm] = useState('');
+
     const [filteredListings, setFilteredListings] = useState([]);
     const [selectedCategory, setSelectedCategory] = useState('all');
     const navigate = useNavigate();
+    const [expandedCards, setExpandedCards] = useState({});
 
     const categories = [
         { name: 'All', path: '', icon: <FaThLarge /> },
@@ -59,7 +63,12 @@ function Dashboard() {
         e.preventDefault();
         filterListings(searchTerm, selectedCategory);
     };
-
+    const toggleExpand = (id) => {
+        setExpandedCards((prev) => ({
+            ...prev,
+            [id]: !prev[id]
+        }));
+    };
     const handleSearchInput = (e) => {
         const value = e.target.value;
         setSearchTerm(value);
@@ -70,7 +79,28 @@ function Dashboard() {
         setSelectedCategory(category);
         filterListings(searchTerm, category);
     };
-
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    const formData = {
+      receiverId,
+      senderId,
+      message,
+      listingTitle,
+      listingId,
+    };
+    const token = localStorage.getItem('token');
+    try {
+      await axios.post('http://localhost:3001/send-message', formData, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      setFeedback('Message sent successfully!');
+    } catch (error) {
+      setFeedback('Failed to send the message. Please try again.');
+    }
+    navigate('/my-messages'); // 发送后跳转
+    setMessage('');
+  };
+  
     const filterListings = (search, category) => {
         let filtered = [...listings];
         if (search) {
@@ -143,7 +173,7 @@ function Dashboard() {
                     </ul>
                 </div>
 
-                <div className="flex-grow-1 container mt-4">
+                <div className="flex-grow-1 mt-4">
                     {loading ? (
                         <div className="text-center">
                             <div className="spinner-border text-primary" role="status">
@@ -154,31 +184,113 @@ function Dashboard() {
                     ) : error ? (
                         <div className="alert alert-danger">Error: {error}</div>
                     ) : (
-                        <div className="row row-cols-1 row-cols-md-3 g-4">
+                        <div className="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-3 row-cols-xl-6 g-4">
                             {filteredListings.length > 0 ? (
                                 filteredListings.map((listing) => (
                                     <div key={listing._id} className="col">
                                         <div className="card h-100 shadow-sm">
                                             {listing.image && (
-                                                <img
-                                                    src={`data:image/jpeg;base64,${listing.image}`}
-                                                    className="card-img-top"
-                                                    alt={listing.title}
-                                                    style={{ height: '200px', objectFit: 'cover' }}
-                                                />
+                                                <div className="listing-image-wrapper">
+                                                    <img
+                                                        src={`data:image/jpeg;base64,${listing.image}`}
+                                                        className="listing-image card-img-top"
+                                                        alt={listing.title}
+                                                    />
+                                                </div>
                                             )}
                                             <div className="card-body d-flex flex-column">
                                                 <h5 className="card-title">{listing.title}</h5>
-                                                <p className="card-text flex-grow-1">{listing.description}</p>
+                                                <p className="card-text flex-grow-1">
+                                                    {expandedCards[listing._id]
+                                                        ? listing.description
+                                                        : (listing.description && listing.description.length > 80
+                                                            ? listing.description.slice(0, 80) + '...'
+                                                            : listing.description)
+                                                    }
+                                                    {listing.description && listing.description.length > 80 && (
+                                                        <button
+                                                            className="show-more-btn"
+                                                            onClick={() => toggleExpand(listing._id)}
+                                                        >
+                                                            {expandedCards[listing._id] ? 'Show less' : 'Show more'}
+                                                        </button>
+                                                    )}
+                                                </p>
                                                 <div className="mt-auto">
                                                     <p className="card-text"><strong className="text-primary">Price: ${listing.price}</strong></p>
                                                     <p className="card-text"><small className="text-muted">Posted by: {listing.username}</small></p>
-                                                    <button
-                                                        className="btn btn-outline-primary w-100"
-                                                        onClick={() => navigate(`/send-message?recipient=${listing.username}&receiverId=${listing.ownerId}&listingId=${listing._id}&listingTitle=${listing.title}`)}
-                                                    >
-                                                        Send Message
-                                                    </button>
+
+                                                    <Popup trigger={<button className="btn btn-outline-primary w-100">Message</button>} modal nested>
+                                                        {(close) => (
+                                                            <div className="card p-4 custom-popup-content">
+                                                                <button className="btn-close" onClick={close} aria-label="Close"></button>
+                                                                <div style={{ display: 'flex', alignItems: 'center', gap: '18px', marginBottom: '20px' }}>
+                                                                    
+                                                                    <img
+                                                                        src={`data:image/jpeg;base64,${listing.image}`}
+                                                                        alt={listing.title}
+                                                                        style={{ height: '100px', width: '100px', objectFit: 'cover' }}
+                                                                    />
+                                                                    <div>
+                                                                        <h5 className="card-title">{listing.title}</h5>
+                                                                        <h6 className="card-text">${listing.price}</h6>   
+                                                                    </div>
+                                                                </div>
+                                                                <h5>Send Message to {listing.username}</h5>
+                                                                <form
+                                                                    onSubmit={async (e) => {
+                                                                        e.preventDefault();
+                                                                        const senderId = localStorage.getItem('userId');
+                                                                        const receiverId = listing.ownerId || listing.userId;
+                                                                        const listingTitle = listing.title;
+                                                                        const listingId = listing._id;
+                                                                        const token = localStorage.getItem('token');
+                                                                        try {
+                                                                            await axios.post('http://localhost:3001/send-message', {
+                                                                                senderId,
+                                                                                receiverId,
+                                                                                listingId,
+                                                                                listingTitle,
+                                                                                message,
+                                                                            }, {
+                                                                                headers: { Authorization: `Bearer ${token}` },
+                                                                            });
+                                                                            setFeedback('Message sent successfully!');
+                                                                            setMessage('');
+                                                                            close();
+                                                                            navigate('/my-messages');
+                                                                        } catch (error) {
+                                                                            setFeedback('Failed to send the message. Please try again.');
+                                                                        }
+                                                                    }}
+                                                                >
+                                                                    <div className="form-group mb-3">
+                                                                        <label htmlFor="message" className="form-label">
+                                                                            
+                                                                        </label>
+                                                                        <textarea 
+                                                                            rows="4" 
+                                                                            id="message"
+                                                                            name="message"
+                                                                            className="form-control" 
+                                                                            placeholder="Type your message here..."
+                                                                            value={message}
+                                                                            onChange={(e) => setMessage(e.target.value)}
+                                                                            required
+                                                                        ></textarea>
+                                                                    </div>
+                                                                    <div className="d-flex justify-content-end">
+                                                                        <button type="submit" className="btn btn-primary mt-2">Send</button>
+                                                                    </div>
+                                                                </form>
+                                                                {feedback && (
+                                                                    <div className="alert alert-info mt-4">
+                                                                        {feedback}
+                                                                    </div>
+                                                                )}
+                                                            </div>
+                                                        )}
+                                                    </Popup>
                                                 </div>
                                             </div>
                                         </div>

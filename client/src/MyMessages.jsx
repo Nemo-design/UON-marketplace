@@ -155,49 +155,82 @@ const MyMessages = () => {
             <h5 className="mb-3">My Messages</h5>
             <ul className="list-unstyled">
               {messengers.length > 0 ? (
-                  messengers.map((messenger) => (
-                      <li
-                          key={messenger._id}
-                          className="message-card d-flex align-items-center justify-content-between mb-3"
-                          style={{ cursor: 'pointer', background: '#fff', borderRadius: '8px', boxShadow: '0 1px 4px rgba(0,0,0,0.04)', padding: '14px 18px', border: '1px solid #e4e6eb' }}
+                messengers.map((messenger) => {
+                  const currentUserId = localStorage.getItem('userId');
+
+                  // Normalize sender and receiver IDs and objects
+                  const sender = messenger.senderId;
+                  const receiver = messenger.receiverId;
+
+                  // Get sender and receiver IDs as strings
+                  const senderId = typeof sender === 'object' ? sender._id || sender.id : sender;
+                  const receiverId = typeof receiver === 'object' ? receiver._id || receiver.id : receiver;
+                  
+                  // Determine the "other" user object
+                  let otherUser;
+                  if (senderId === currentUserId) {
+                    otherUser = receiver;
+                    
+                  } else {
+                    otherUser = sender;
+                  }
+
+                  // Get the username or fallback to ID
+                  const otherUsername =
+                    (typeof otherUser === 'object' && (otherUser.username || otherUser.Username)) ||
+                    (typeof otherUser === 'object' && (otherUser._id || otherUser.id)) ||
+                    otherUser;
+                  return (
+                    <li
+                      key={messenger._id}
+                      className="message-card d-flex align-items-center justify-content-between mb-3"
+                      style={{
+                        cursor: 'pointer',
+                        background: '#fff',
+                        borderRadius: '8px',
+                        boxShadow: '0 1px 4px rgba(0,0,0,0.04)',
+                        padding: '14px 18px',
+                        border: '1px solid #e4e6eb'
+                      }}
+                    >
+                      <div
+                        className="message-content"
+                        onClick={() => viewMessageHistory(messenger)}
+                        style={{ flex: 1, minWidth: 0 }}
                       >
-                        <div
-                            className="message-content"
-                            onClick={() => viewMessageHistory(messenger)}
-                            style={{ flex: 1, minWidth: 0 }}
-                        >
-                          <div className="message-title" style={{ fontWeight: 500 }}>
-                            From: {messenger.senderId.Username || messenger.senderId.username || messenger.senderId}
-                          </div>
-                          <div className="message-subtitle" style={{ fontSize: '0.97rem', color: '#888' }}>
-                            Regarding: {messenger.listingId?.title || 'Unknown Listing'}
-                          </div>
+                        <div className="message-title" style={{ fontWeight: 500 }}>
+                         {otherUsername}
                         </div>
-                        <button
-                            className="delete-btn ms-3"
-                            onClick={() => handleDeleteConversation(messenger._id)}
-                            style={{
-                              border: 'none',
-                              background: '#f5f6fa',
-                              color: '#e41e3f',
-                              borderRadius: '50%',
-                              width: '36px',
-                              height: '36px',
-                              display: 'flex',
-                              alignItems: 'center',
-                              justifyContent: 'center',
-                              fontWeight: 'bold',
-                              fontSize: '1.15rem',
-                              transition: 'background 0.2s',
-                            }}
-                            title="Delete Conversation"
-                        >
-                          ×
-                        </button>
-                      </li>
-                  ))
+                        <div className="message-subtitle" style={{ fontSize: '0.97rem', color: '#888' }}>
+                          Regarding: {messenger.listingId?.title || 'Unknown Listing'}
+                        </div>
+                      </div>
+                      <button
+                        className="delete-btn ms-3"
+                        onClick={() => handleDeleteConversation(messenger._id)}
+                        style={{
+                          border: 'none',
+                          background: '#f5f6fa',
+                          color: '#e41e3f',
+                          borderRadius: '50%',
+                          width: '36px',
+                          height: '36px',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          fontWeight: 'bold',
+                          fontSize: '1.15rem',
+                          transition: 'background 0.2s',
+                        }}
+                        title="Delete Conversation"
+                      >
+                        ×
+                      </button>
+                    </li>
+                  );
+                })
               ) : (
-                  <p>No messages found.</p>
+                <p>No messages found.</p>
               )}
             </ul>
           </div>
@@ -207,18 +240,39 @@ const MyMessages = () => {
             {selectedMessenger ? (
                 <div className="custom-border p-4">
                   <h3>Message History</h3>
-                  <ul className="list-unstyled">
-                    {selectedMessenger.messages.map((message) => (
-                        <li key={message._id} className="mb-2">
-                          <div>
-                            <strong>
-                              {message.senderId === localStorage.getItem('userId') ? 'You' : 'Them'}:
-                            </strong>{' '}
-                            {message.content}
-                          </div>
-                        </li>
-                    ))}
-                  </ul>
+                    <ul className="list-unstyled">
+                      {selectedMessenger.messages.map((message) => {
+                        const currentUserId = localStorage.getItem('userId');
+
+                        // Get senderId as string
+                        const senderId = typeof message.senderId === 'object'
+                          ? message.senderId._id || message.senderId.id
+                          : message.senderId;
+
+                        // Get sender object from selectedMessenger if available
+                        let senderObj = null;
+                        if (
+                          typeof selectedMessenger.senderId === 'object' &&
+                          (selectedMessenger.senderId._id === senderId || selectedMessenger.senderId.id === senderId)
+                        ) {
+                          senderObj = selectedMessenger.senderId;
+                        }
+
+                        // Get sender username
+                        const senderUsername =
+                          senderId === currentUserId
+                            ? 'You'
+                            : (senderObj && (senderObj.username || senderObj.Username)) || 'Unknown';
+
+                        return (
+                          <li key={message._id} className="mb-2">
+                            <div>
+                              <strong>{senderUsername}:</strong> {message.content}
+                            </div>
+                          </li>
+                        );
+                      })}
+                    </ul>
                   {/* 回复表单 */}
                   <form
                       onSubmit={(e) => {

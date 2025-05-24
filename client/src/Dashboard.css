@@ -76,6 +76,7 @@ body {
     border-radius: 6px;
 }
 
+
 .btn-danger:hover {
     background-color: #c4112e;
 }
@@ -86,7 +87,17 @@ body {
     padding: 16px;
     width: 250px;
 }
-
+.custom-popup-content {
+    width: 600px;
+    max-width: 95vw;
+    min-height: 500px;
+}
+/* Blur and darken the background when popup is open */
+.popup-overlay {
+    background: rgba(0, 0, 0, 0.45) !important; /* darken */
+    backdrop-filter: blur(4px);                 /* blur */
+    z-index: 1050 !important;
+}
 .category-sidebar h5 {
     font-size: 1.1rem;
     margin-bottom: 16px;
@@ -142,6 +153,8 @@ body {
 }
 
 .card {
+    margin-left: auto;
+    margin-right: auto;
     border: 1px solid #e0e0e0;
     border-radius: 8px;
     transition: box-shadow 0.3s ease;
@@ -149,4 +162,36 @@ body {
 
 .card:hover {
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+.listing-image-wrapper {
+    width: 100%;
+    aspect-ratio: 4 / 3; /* or 16/9, 1/1, etc. Adjust as needed */
+    overflow: hidden;
+    border : 5px solid #ffffff;
+    border-top-left-radius: 0.5rem;
+    border-top-right-radius: 0.5rem;
+    background: #ffffff;
+}
+
+.listing-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: flex;
+    margin: 0 auto;
+}
+.show-more-btn {
+    color: #525558 !important;      
+    background: #fff !important;
+    border: none;
+    padding: 0 0.25rem;
+    font-weight: 400;
+    font-size: medium;
+    border-radius: 0.25rem;
+    cursor: pointer;
+    text-decoration: underline;
+}
+.show-more-btn:hover {
+    background: #f0f2f5 !important;
+    color: #1251a0 !important;
 }
