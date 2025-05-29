@@ -189,15 +189,16 @@ function Dashboard() {
                                 filteredListings.map((listing) => (
                                     <div key={listing._id} className="col">
                                         <div className="card h-100 shadow-sm">
-                                            {listing.image && (
+                                            {listing.images && listing.images.length > 0 && (
                                                 <div className="listing-image-wrapper">
                                                     <img
-                                                        src={`data:image/jpeg;base64,${listing.image}`}
-                                                        className="listing-image card-img-top"
+                                                        src={`data:image/jpeg;base64,${listing.images[0]}`}
                                                         alt={listing.title}
+                                                        className="listing-image card-img-top"
                                                     />
                                                 </div>
                                             )}
+
                                             <div className="card-body d-flex flex-column">
                                                 <h5 className="card-title">{listing.title}</h5>
                                                 <p className="card-text flex-grow-1">
@@ -226,11 +227,13 @@ function Dashboard() {
                                                                 <button className="btn-close" onClick={close} aria-label="Close" style={{ position: 'absolute', top: '10px', right: '10px'}}>x</button>
                                                                 <div style={{ display: 'flex', alignItems: 'center', gap: '18px', marginBottom: '20px' }}>
                                                                     
-                                                                    <img
-                                                                        src={`data:image/jpeg;base64,${listing.image}`}
-                                                                        alt={listing.title}
-                                                                        style={{ height: '100px', width: '100px', objectFit: 'cover' }}
-                                                                    />
+                                                                    {listing.images && listing.images.length > 0 && (
+                                                                        <img
+                                                                            src={`data:image/jpeg;base64,${listing.images[0]}`}
+                                                                            alt={listing.title}
+                                                                            style={{ height: '100px', width: '100px', objectFit: 'cover' }}
+                                                                        />
+                                                                    )}
                                                                     <div>
                                                                         <h5 className="card-title">{listing.title}</h5>
                                                                         <h6 className="card-text">${listing.price}</h6>   
