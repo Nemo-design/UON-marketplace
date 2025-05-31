@@ -508,3 +508,10 @@ app.delete('/delete-messenger/:messengerId', authMiddleware(true), async (req, r
     res.status(500).json({ error: 'Failed to delete conversation', details: err.message });
   }
 });
+
+// Example in Node.js (Express)
+app.get('/check-username', async (req, res) => {
+    const { username } = req.query;
+    const user = await User.findOne({ username }); // Adjust to your DB
+    res.json({ exists: !!user });
+});

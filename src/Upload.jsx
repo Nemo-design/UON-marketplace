@@ -13,35 +13,41 @@ function Upload() {
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
-    e.preventDefault();
+  e.preventDefault();
 
-    const username = localStorage.getItem('username'); // Get the username from local storage
+  // ✅ PRICE VALIDATION
+  if (isNaN(price) || price.trim() === '') {
+    alert('Please enter a valid number for the price.');
+    return; // Stop submission if price is invalid
+  }
 
-    const formData = new FormData(); // Use FormData for file upload
-    formData.append('title', title);
-    formData.append('description', description);
-    formData.append('price', price);
-    formData.append('username', username);
-    formData.append('category', category); // Append the selected category
-    if (image) {
-      formData.append('image', image); // Append the image file
-    }
+  const username = localStorage.getItem('username');
 
-    const token = localStorage.getItem('token');
-    axios.post('http://localhost:3001/upload', formData, {
-      headers: {
-        'Content-Type': 'multipart/form-data', // Set content type for file upload
-        'Authorization': `Bearer ${token}`,
-      },
+  const formData = new FormData();
+  formData.append('title', title);
+  formData.append('description', description);
+  formData.append('price', price);
+  formData.append('username', username);
+  formData.append('category', category);
+  if (image) {
+    formData.append('image', image);
+  }
+
+  const token = localStorage.getItem('token');
+  axios.post('http://localhost:3001/upload', formData, {
+    headers: {
+      'Content-Type': 'multipart/form-data',
+      'Authorization': `Bearer ${token}`,
+    },
+  })
+    .then((res) => {
+      console.log(res);
+      navigate('/dashboard');
     })
-      .then((res) => {
-        console.log(res);
-        navigate('/dashboard'); // Redirect to dashboard page
-      })
-      .catch((err) => {
-        console.log(err);
-      });
-  };
+    .catch((err) => {
+      console.log(err);
+    });
+};
 
   return (
     <div className="upload-container">

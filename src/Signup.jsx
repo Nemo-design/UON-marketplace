@@ -29,18 +29,35 @@ function Signup() {
         { name: 'Pets', icon: <FaDog /> }
     ];
 
-    const handleSubmit = (e) => {
-        e.preventDefault();
-        axios.post('http://localhost:3001/register', { Username, Email, Password })
-            .then((res) => {
-                if (res.data.message === 'Success') {
-                    navigate('/login');
-                } else {
-                    alert('Registration failed.');
-                }
-            })
-            .catch(() => alert('Registration failed.'));
-    };
+const handleSubmit = async (e) => {
+    e.preventDefault();
+
+    // checks email
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(Email)) {
+        alert('Please enter a valid email address.');
+        return;
+    }
+
+    try {
+        // Check if username exists
+        const usernameCheck = await axios.get(`http://localhost:3001/check-username?username=${Username}`);
+        if (usernameCheck.data.exists) {
+            alert('Username already taken. Please choose another one.');
+            return;
+        }
+
+        // Proceed with registration
+        const res = await axios.post('http://localhost:3001/register', { Username, Email, Password });
+        if (res.data.message === 'Success') {
+            navigate('/login');
+        } else {
+            alert('Registration failed.');
+        }
+    } catch (error) {
+        alert('An error occurred during registration.');
+    }
+};
 
     return (
         <div className="min-vh-100 d-flex flex-column">
