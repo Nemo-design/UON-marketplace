@@ -7,7 +7,7 @@ function Upload() {
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [price, setPrice] = useState('');
-  const [image, setImage] = useState(null); // State for the image file
+  const [images, setImages] = useState([]); // State for the image files
   const [category, setCategory] = useState(''); // State for the category
 
   const navigate = useNavigate();
@@ -23,8 +23,11 @@ function Upload() {
     formData.append('price', price);
     formData.append('username', username);
     formData.append('category', category); // Append the selected category
-    if (image) {
-      formData.append('image', image); // Append the image file
+
+    if (images && images.length > 0) {
+      images.forEach((image) => {
+        formData.append('images', image);
+      });
     }
 
     const token = localStorage.getItem('token');
@@ -70,7 +73,8 @@ function Upload() {
         <div className="form-group">
           <label htmlFor="Price">Price</label>
           <input
-            type="text"
+            type="number" // Changed to number for price input
+            min="0" // Minimum price is 0
             id="Price"
             name="price"
             required
@@ -100,13 +104,15 @@ function Upload() {
           </select>
         </div>
         <div className="form-group">
+          
           <label htmlFor="Image">Upload Image</label>
           <input
             type="file"
             id="Image"
-            name="image"
+            name="images"
             accept="image/*"
-            onChange={(e) => setImage(e.target.files[0])} // Set the selected file
+            multiple // Allow multiple file selection
+            onChange={(e) => setImages(Array.from(e.target.files))} // Set the selected files
           />
         </div>
         <div className="button-row">

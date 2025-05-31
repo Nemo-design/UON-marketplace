@@ -103,7 +103,7 @@ app.get('/listings/all', async (req, res) => {
 });
 
 // Upload a new listing
-app.post('/upload', authMiddleware(false), upload.single('image'), async (req, res) => {
+app.post('/upload', authMiddleware(false), upload.array('images', 10), async (req, res) => {
   try {
     const { title, description, price, category } = req.body;
     
@@ -126,9 +126,9 @@ app.post('/upload', authMiddleware(false), upload.single('image'), async (req, r
       createdAt: new Date()
     };
 
-    // Add image if provided
-    if (req.file) {
-      listingData.image = req.file.buffer.toString('base64');
+    // Add images
+    if (req.files && req.files.length > 0) {
+      listingData.images = req.files.map(file => file.buffer.toString('base64'));
     }
 
     // Save to database
@@ -161,13 +161,13 @@ app.get('/listings/id/:id', async (req, res) => {
   }
 });
 // Edit a listing
-app.put('/listings/id/:id', authMiddleware(false), upload.single('image'), async (req, res) => {
+app.put('/listings/id/:id', authMiddleware(false), upload.array('images', 10), async (req, res) => {
   try {
     const { title, description, price, category } = req.body;
     const updateData = { title, description, price, category };
-    
-    if (req.file) {
-      updateData.image = req.file.buffer.toString('base64');
+
+    if (req.files && req.files.length > 0) {
+      updateData.images = req.files.map(file => file.buffer.toString('base64'));
     }
 
     const updatedListing = await listingModel.findByIdAndUpdate(
@@ -185,8 +185,30 @@ app.put('/listings/id/:id', authMiddleware(false), upload.single('image'), async
     console.error('Error updating listing:', err);
     res.status(500).json({ error: 'Failed to update listing', details: err.message });
   }
-});
+})
+app.delete('/listings/id/:id/image/:imageIndex', authMiddleware(true), async (req, res) => {
+  try {
+    const { id, imageIndex } = req.params;
 
+    // Find the listing
+    const listing = await listingModel.findOne({ _id: id, ownerId: req.user._id });
+    if (!listing) {
+      return res.status(404).json({ error: 'Listing not found or you do not have permission to edit this listing.' });
+    }
+
+    // Remove the image at the specified index
+    const idx = parseInt(imageIndex, 10);
+    if (isNaN(idx) || idx < 0 || idx >= listing.images.length) {
+      return res.status(400).json({ error: 'Invalid image index' });
+    }
+    listing.images.splice(idx, 1);
+    await listing.save();
+
+    res.json(listing);
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to delete listing image', details: err.message });
+  }
+});
 
 // Get listings by category
 app.get('/listings/:category', async (req, res) => {
@@ -215,33 +237,6 @@ app.delete('/listings/:id', authMiddleware(false), async (req, res) => {
   } catch (err) {
     console.error('Error deleting listing:', err);
     res.status(500).json({ error: 'Failed to delete listing', details: err.message });
-  }
-});
-
-// Edit a listing
-app.put('/listings/:id', authMiddleware(false), upload.single('image'), async (req, res) => {
-  try {
-    const { title, description, price, category } = req.body;
-    const updateData = { title, description, price, category };
-    
-    if (req.file) {
-      updateData.image = req.file.buffer.toString('base64');
-    }
-
-    const updatedListing = await listingModel.findByIdAndUpdate(
-      req.params.id,
-      updateData,
-      { new: true }
-    );
-
-    if (!updatedListing) {
-      return res.status(404).json({ error: 'Listing not found' });
-    }
-
-    res.json(updatedListing);
-  } catch (err) {
-    console.error('Error updating listing:', err);
-    res.status(500).json({ error: 'Failed to update listing', details: err.message });
   }
 });
 

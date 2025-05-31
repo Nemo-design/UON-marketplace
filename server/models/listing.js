@@ -15,17 +15,19 @@ const listingSchema = new mongoose.Schema({
         required: true,
     },
     price: {
-        type: String,
+        type: Number,
+        min: 0, // Minimum price is 0 so no negatives
+        max: 10000000000, 
         required: true
     },
     username: {
         type: String,
         required: true
     },
-    image: {
+    images: [{
         type: String, // Store the image URL or Base64 string
         required: false // Changed to false to make it optional
-    },
+    }],
     // messages is an array of ObjectId references to the Message model
 messengers: {
   type: [
