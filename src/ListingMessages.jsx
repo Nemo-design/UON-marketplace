@@ -3,7 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { Link } from 'react-router-dom';
 import axios from 'axios';
 import 'bootstrap/dist/css/bootstrap.min.css';
-import './MyMessages.css'; // Reuse the same CSS as MyMessages
+import './ListingMessages.css'; 
 
 const ListingMessages = () => {
   const { listingId } = useParams(); // Get the listing ID from the URL
@@ -228,6 +228,7 @@ const ListingMessages = () => {
           ) : (
             <p>Select a user to view their messages.</p>
           )}
+          
         </div>
       </div>
     </div>
