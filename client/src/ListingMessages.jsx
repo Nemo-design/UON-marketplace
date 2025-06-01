@@ -1,14 +1,28 @@
 import React, { useEffect, useState } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
-import { Link } from 'react-router-dom';
+import { useParams, useNavigate, Link } from 'react-router-dom';
 import axios from 'axios';
 import 'bootstrap/dist/css/bootstrap.min.css';
-import './MyMessages.css'; // Reuse the same CSS as MyMessages
+import './ListingMessages.css';
+
+const categories = [
+  { name: 'All', path: '', icon: null },
+  { name: 'Electronics', path: 'electronics', icon: null },
+  { name: 'Furniture', path: 'furniture', icon: null },
+  { name: 'Clothing', path: 'clothing', icon: null },
+  { name: 'Books', path: 'books', icon: null },
+  { name: 'Sports', path: 'sports', icon: null },
+  { name: 'Vehicles', path: 'vehicles', icon: null },
+  { name: 'Toys', path: 'toys', icon: null },
+  { name: 'Home Appliances', path: 'home-appliances', icon: null },
+  { name: 'Beauty', path: 'beauty', icon: null },
+  { name: 'Pets', path: 'pets', icon: null },
+];
 
 const ListingMessages = () => {
-  const { listingId } = useParams(); // Get the listing ID from the URL
+  const { listingId } = useParams();
   const [messengers, setMessengers] = useState([]);
   const [selectedMessenger, setSelectedMessenger] = useState(null);
+  const [selectedCategory, setSelectedCategory] = useState('all');
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -16,16 +30,13 @@ const ListingMessages = () => {
       const token = localStorage.getItem('token');
       try {
         const response = await axios.get(`http://localhost:3001/listing/${listingId}/messengers`, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
+          headers: { Authorization: `Bearer ${token}` },
         });
         setMessengers(response.data);
       } catch (err) {
-        console.error('Error fetching messengers:', err); 
+        console.error('Error fetching messengers:', err);
       }
     };
-
     fetchMessengers();
   }, [listingId]);
 
@@ -43,14 +54,9 @@ const ListingMessages = () => {
           message: messageContent,
         },
         {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
+          headers: { Authorization: `Bearer ${token}` },
         }
       );
-      console.log('Reply sent successfully:', response.data);
-
-      // Update the selected messenger with the new message
       setSelectedMessenger((prev) => ({
         ...prev,
         messages: [...prev.messages, response.data.data],
@@ -60,145 +66,142 @@ const ListingMessages = () => {
     }
   };
 
+  const handleCategoryClick = (category) => {
+    setSelectedCategory(category);
+  };
+
+  // For displaying the other user's name
+  let otherUser = null;
+  let otherUsername = '';
+  if (selectedMessenger) {
+    const currentUserId = localStorage.getItem('userId');
+    const sender = selectedMessenger.senderId;
+    const receiver = selectedMessenger.receiverId;
+    const senderId = typeof sender === 'object' ? sender._id || sender.id : sender;
+    if (senderId === currentUserId) {
+      otherUser = receiver;
+    } else {
+      otherUser = sender;
+    }
+    otherUsername =
+      (typeof otherUser === 'object' && (otherUser.username || otherUser.Username)) ||
+      (typeof otherUser === 'object' && (otherUser._id || otherUser.id)) ||
+      otherUser;
+  }
+
   return (
     <div className="min-vh-100 d-flex flex-column">
-      {/* Navigation Bar */}
-      <nav className="navbar navbar-expand-lg navbar-light bg-light">
-        <div className="container-fluid">
+      {/* ===== Top Navbar ===== */}
+      <nav className="navbar">
+        <div className="d-flex align-items-center gap-4">
           <a className="navbar-brand" href="#">Market</a>
-          <button className="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-            <span className="navbar-toggler-icon"></span>
-          </button>
-          <div className="collapse navbar-collapse" id="navbarNav">
-            <ul className="navbar-nav me-auto">
-              <li className="nav-item">
-                <Link className="nav-link" to="/dashboard">Home</Link>
-              </li>
-              <li className="nav-item">
-                <Link className="nav-link" to="/upload">Create Listing</Link>
-              </li>
-              <li className="nav-item">
-                <Link className="nav-link" to="/my-messages">Messages</Link>
-              </li>
-              <li className="nav-item">
-                <Link className="nav-link" to="/my-listings">My Listings</Link>
-              </li>
-            </ul>
-
-            {/* Search Bar */}
-            <form className="d-flex mx-auto search-form" role="search">
-              <input
-                className="form-control me-2 search-input"
-                type="search"
-                placeholder="Search"
-                aria-label="Search"
-              />
-              <button className="btn search-btn" type="submit">
-                Search
-              </button>
-            </form>
-          </div>
+          <Link className="nav-link" to="/dashboard">Home</Link>
+          <Link className="nav-link" to="/upload">Create Listing</Link>
+          <Link className="nav-link" to="/my-messages">Messages</Link>
+          <Link className="nav-link" to="/my-listings">My Listings</Link>
+        </div>
+        <div className="d-flex align-items-center gap-3">
+          <form className="search-form d-flex align-items-center" onSubmit={e => e.preventDefault()}>
+            <input className="search-input" type="search" placeholder="Search" aria-label="Search" />
+            <button className="search-btn" type="submit">Search</button>
+          </form>
         </div>
       </nav>
 
-      {/* Main Content */}
       <div className="flex-grow-1 d-flex">
-        {/* Categories */}
-        <div className="category-sidebar bg-light p-3" style={{ width: '250px' }}>
+        {/* ===== Sidebar ===== */}
+        <div className="category-sidebar bg-light p-3">
           <h5 className="mb-3">Categories</h5>
           <ul className="list-unstyled">
-            <li className="category-item">
-              <Link to="/category/electronics" className="text-decoration-none">
-                Electronics
-              </Link>
-            </li>
-            <li className="category-item">
-              <Link to="/category/furniture" className="text-decoration-none">
-                Furniture
-              </Link>
-            </li>
-            <li className="category-item">
-              <Link to="/category/clothing" className="text-decoration-none">
-                Clothing
-              </Link>
-            </li>
-            <li className="category-item">
-              <Link to="/category/books" className="text-decoration-none">
-                Books
-              </Link>
-            </li>
-            <li className="category-item">
-              <Link to="/category/sports" className="text-decoration-none">
-                Sports
-              </Link>
-            </li>
-            <li className="category-item">
-              <Link to="/category/vehicles" className="text-decoration-none">
-                Vehicles
-              </Link>
-            </li>
-            <li className="category-item">
-              <Link to="/category/toys" className="text-decoration-none">
-                Toys
-              </Link>
-            </li>
-            <li className="category-item">
-              <Link to="/category/home-appliances" className="text-decoration-none">
-                Home Appliances
-              </Link>
-            </li>
-            <li className="category-item">
-              <Link to="/category/beauty" className="text-decoration-none">
-                Beauty
-              </Link>
-            </li>
-            <li className="category-item">
-              <Link to="/category/pets" className="text-decoration-none">
-                Pets
-              </Link>
-            </li>
+            {categories.map(({ name }) => (
+              <li className="category-item" key={name}>
+                <button
+                  type="button"
+                  className={
+                    "category-btn d-inline-flex align-items-center gap-2 text-decoration-none" +
+                    (name !== 'All' && selectedCategory === name.toLowerCase() ? ' text-primary' : '')
+                  }
+                  style={{
+                    fontWeight: name !== 'All' && selectedCategory === name.toLowerCase() ? 'bold' : 'normal'
+                  }}
+                  onClick={() => handleCategoryClick(name.toLowerCase())}
+                >
+                  {name}
+                </button>
+              </li>
+            ))}
           </ul>
         </div>
 
-        {/* Messages List */}
-        <div className="messages-list" style={{ flexGrow: 1, padding: '20px' }}>
+        {/* ===== Message List ===== */}
+        <div className="messages-list" style={{ flexGrow: 1, padding: '20px', maxWidth: '350px', borderRight: '1px solid #ddd' }}>
           <h5 className="mb-3">Users Who Messaged</h5>
           <ul className="list-unstyled">
             {messengers.length > 0 ? (
-              messengers.map((messenger) => (
-                <li
-                  key={messenger._id}
-                  className="category-item mb-3"
-                  onClick={() => viewMessageHistory(messenger)} // Set the selected messenger
-                  style={{ cursor: 'pointer' }}
-                >
-                  <h6>From: {messenger.senderId.Username}</h6>
-                </li>
-              ))
+              messengers.map((messenger) => {
+                const sender = messenger.senderId;
+                const senderUsername =
+                  (typeof sender === 'object' && (sender.username || sender.Username)) ||
+                  (typeof sender === 'object' && (sender._id || sender.id)) ||
+                  sender;
+                return (
+                  <li
+                    key={messenger._id}
+                    className="message-card d-flex align-items-center justify-content-between mb-3"
+                    style={{
+                      cursor: 'pointer',
+                      background: '#fff',
+                      borderRadius: '8px',
+                      boxShadow: '0 1px 4px rgba(0,0,0,0.04)',
+                      padding: '14px 18px',
+                      border: '1px solid #e4e6eb'
+                    }}
+                  >
+                    <div
+                      className="message-content"
+                      onClick={() => viewMessageHistory(messenger)}
+                      style={{ flex: 1, minWidth: 0 }}
+                    >
+                      <div className="message-title" style={{ fontWeight: 500 }}>
+                        {senderUsername}
+                      </div>
+                      <div className="message-subtitle" style={{ fontSize: '0.97rem', color: '#888' }}>
+                        {messenger.listingId?.title || 'Listing'}
+                      </div>
+                    </div>
+                  </li>
+                );
+              })
             ) : (
               <p>No messages found for this listing.</p>
             )}
           </ul>
         </div>
 
-        {/* Selected Messenger Panel */}
+        {/* ===== Selected Message Panel ===== */}
         <div className="flex-grow-1 p-4">
           {selectedMessenger ? (
             <div className="custom-border p-4">
-              <h3>Message History</h3>
-              <ul>
-                {selectedMessenger.messages.map((message) => (
-                  <li key={message._id}>
-                    <p>
-                      <strong>
-                        {message.senderId === localStorage.getItem('userId') ? 'You' : 'Them'}:
-                      </strong>{' '}
-                      {message.content}
-                    </p>
-                  </li>
-                ))}
+              <h3>Message with {otherUsername}</h3>
+              <ul className="list-unstyled">
+                {selectedMessenger.messages.map((message) => {
+                  const currentUserId = localStorage.getItem('userId');
+                  const senderId = typeof message.senderId === 'object'
+                    ? message.senderId._id || message.senderId.id
+                    : message.senderId;
+                  const senderUsername =
+                    senderId === currentUserId
+                      ? 'You'
+                      : (otherUsername) || 'Unknown';
+                  return (
+                    <li key={message._id} className="mb-2">
+                      <div>
+                        <strong>{senderUsername}:</strong> {message.content}
+                      </div>
+                    </li>
+                  );
+                })}
               </ul>
-
               {/* Reply Form */}
               <form
                 onSubmit={(e) => {

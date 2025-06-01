@@ -95,6 +95,7 @@ const MyMessages = () => {
     localStorage.removeItem('username');
     navigate('/login');
   };
+  // For displaying the other user's name
     let otherUser = null;
   let otherUsername = '';
   if (selectedMessenger) {
