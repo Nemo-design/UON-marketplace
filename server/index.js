@@ -407,8 +407,6 @@ app.get('/listing/:listingId/messengers', authMiddleware(true), async (req, res)
   try {
     const { listingId } = req.params;
 
-    console.log('Fetching messengers for listingId:', listingId); // Debugging log
-
     // Find the listing and populate its messengers
     const listing = await listingModel
       .findById(listingId)
@@ -418,11 +416,11 @@ app.get('/listing/:listingId/messengers', authMiddleware(true), async (req, res)
           { path: 'senderId', model: 'comp', select: 'Username' },
           { path: 'receiverId', model: 'comp', select: 'Username' },
           { path: 'messages', model: 'message', select: 'senderId content timestamp' },
+          { path: 'listingId', model: 'listing', select: 'title images' }, // <-- ADD THIS LINE
         ],
       });
 
     if (!listing) {
-      console.log('Listing not found for listingId:', listingId); // Debugging log
       return res.status(404).json({ error: 'Listing not found' });
     }
     res.json(listing.messengers);
@@ -445,7 +443,7 @@ app.get('/my-messengers', authMiddleware(true), async (req, res) => {
         { path: 'senderId', model: 'comp', select: 'Username' },
         { path: 'receiverId', model: 'comp', select: 'Username' },
         { path: 'messages', model: 'message', select: 'content timestamp senderId' },
-        { path: 'listingId', model: 'listing', select: 'title image' }, // Populate listing title and image
+        { path: 'listingId', model: 'listing', select: 'title images' }, // <-- FIXED
       ]);
 
     res.json(messengers);

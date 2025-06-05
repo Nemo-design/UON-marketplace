@@ -19,6 +19,8 @@ const MyListings = () => {
   const [filteredListings, setFilteredListings] = useState([]);
   const [selectedCategory, setSelectedCategory] = useState('all');
   const [error, setError] = useState(null);
+  const [username, setUsername] = useState(localStorage.getItem('username') || '');
+
   const categories = [
           { name: 'All', path: '', icon: <FaThLarge /> },
           { name: 'Electronics', path: 'electronics', icon: <FaLaptop /> },
@@ -48,6 +50,10 @@ useEffect(() => {
       setLoading(false);
     });
 }, []);
+
+ useEffect(() => {
+    setUsername(localStorage.getItem('username') || '');
+    }, []);
 
     const handleLogout = () => {
         localStorage.removeItem('token');
@@ -147,6 +153,9 @@ useEffect(() => {
                         title="Profile"
                     >
                         <FaUserCircle />
+                        <span style={{ fontSize: '1rem', marginLeft: '8px' }}>
+                            {username}
+                        </span>
                     </Link>
                     <button className="btn btn-danger" onClick={handleLogout}>Logout</button>
                 </div>
@@ -190,10 +199,11 @@ useEffect(() => {
                                 filteredListings.map((listing) => (
                                     <div key={listing._id} className="col">
                                         <div className="card h-100 shadow-sm">
-                                            {listing.image && (
+                                            {/* Show only the first image if available */}
+                                            {listing.images && listing.images.length > 0 && (
                                                 <div className="listing-image-wrapper">
                                                     <img
-                                                        src={`data:image/jpeg;base64,${listing.image}`}
+                                                        src={`data:image/jpeg;base64,${listing.images[0]}`}
                                                         className="listing-image card-img-top"
                                                         alt={listing.title}
                                                     />
@@ -225,12 +235,12 @@ useEffect(() => {
                                                     <button onClick={() => goToMessages(listing._id)}>Messages</button>
                                                     <Popup trigger={<button className="btn btn-danger"><FaRegTrashAlt /></button>} modal>
                                                         {close => (
-                                                        <div className="p-4">
-                                                            <h5 style={{ color: 'white' }}>Confirm Deletion</h5>
-                                                            <p style={{ color: 'white' }}>Are you sure you want to delete this listing?</p>
-                                                            <button className="btn btn-danger" onClick={() => {handleDelete(listing._id); close();}}>Delete</button>
-                                                            <button className="btn btn-secondary" onClick={close}>Cancel</button>
-                                                        </div>
+                                                            <div className="p-4">
+                                                                <h5 style={{ color: 'white' }}>Confirm Deletion</h5>
+                                                                <p style={{ color: 'white' }}>Are you sure you want to delete this listing?</p>
+                                                                <button className="btn btn-danger" onClick={() => {handleDelete(listing._id); close();}}>Delete</button>
+                                                                <button className="btn btn-secondary" onClick={close}>Cancel</button>
+                                                            </div>
                                                         )}
                                                     </Popup>
                                                 </div>

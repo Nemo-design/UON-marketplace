@@ -116,13 +116,15 @@ function EditListing() {
                 </div>
                 <div className="form-group">
                     <label htmlFor="Description">Description</label>
-                    <input
-                        type="text"
+                    <textarea
                         id="Description"
-                        value={description}
-                        onChange={(e) => setDescription(e.target.value)}
+                        name="description"
                         required
-                    />
+                        rows={5}
+                        style={{ resize: 'vertical' }}
+                        onChange={(e) => setDescription(e.target.value)}
+                        value={description}
+                        />
                 </div>
                 <div className="form-group">
                     <label htmlFor="Price">Price</label>

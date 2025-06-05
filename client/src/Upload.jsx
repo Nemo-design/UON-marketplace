@@ -8,9 +8,19 @@ function Upload() {
   const [description, setDescription] = useState('');
   const [price, setPrice] = useState('');
   const [images, setImages] = useState([]); // State for the image files
+  const [imagePreviews, setImagePreviews] = useState([]); // State for image previews
   const [category, setCategory] = useState(''); // State for the category
 
   const navigate = useNavigate();
+
+  const handleImageChange = (e) => {
+    const files = Array.from(e.target.files);
+    setImages(files);
+
+    // Generate previews
+    const previews = files.map(file => URL.createObjectURL(file));
+    setImagePreviews(previews);
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -48,7 +58,7 @@ function Upload() {
 
   return (
     <div className="upload-container">
-    <h1>Upload Page</h1>
+      <h1>Upload Page</h1>
       <form onSubmit={handleSubmit}>
         <div className="form-group">
           <label htmlFor="Title">Listing Title</label>
@@ -62,19 +72,21 @@ function Upload() {
         </div>
         <div className="form-group">
           <label htmlFor="Description">Description</label>
-          <input
-            type="text"
+          <textarea
             id="Description"
             name="description"
             required
+            rows={5}
+            style={{ resize: 'vertical' }}
             onChange={(e) => setDescription(e.target.value)}
+            value={description}
           />
         </div>
         <div className="form-group">
           <label htmlFor="Price">Price</label>
           <input
-            type="number" // Changed to number for price input
-            min="0" // Minimum price is 0
+            type="number"
+            min="0"
             id="Price"
             name="price"
             required
@@ -104,25 +116,37 @@ function Upload() {
           </select>
         </div>
         <div className="form-group">
-          
           <label htmlFor="Image">Upload Image</label>
           <input
             type="file"
             id="Image"
             name="images"
             accept="image/*"
-            multiple // Allow multiple file selection
-            onChange={(e) => setImages(Array.from(e.target.files))} // Set the selected files
+            multiple
+            onChange={handleImageChange}
           />
         </div>
+        {/* Image previews */}
+        {imagePreviews.length > 0 && (
+          <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap', marginBottom: '16px' }}>
+            {imagePreviews.map((src, idx) => (
+              <img
+                key={idx}
+                src={src}
+                alt={`preview-${idx}`}
+                style={{ width: 90, height: 90, objectFit: 'cover', borderRadius: 8, border: '1px solid #ccc' }}
+              />
+            ))}
+          </div>
+        )}
         <div className="button-row">
           <button type="submit" className="upload-button">
             Upload
           </button>
           <button
-              type="button"
-              className="return-button"
-              onClick={() => navigate('/dashboard')}
+            type="button"
+            className="return-button"
+            onClick={() => navigate('/dashboard')}
           >
             Return
           </button>
@@ -132,4 +156,4 @@ function Upload() {
   );
 }
 
-export default Upload;  
+export default Upload;

@@ -1,13 +1,14 @@
 import React, { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import {Popup} from 'reactjs-popup';
+import { Popup } from 'reactjs-popup';
 import axios from 'axios';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import './Dashboard.css';
 import {
     FaLaptop, FaCouch, FaTshirt, FaBook,
     FaBasketballBall, FaCar, FaPuzzlePiece,
-    FaBlender, FaHeart, FaDog, FaThLarge, FaUserCircle
+    FaBlender, FaHeart, FaDog, FaThLarge, FaUserCircle,
+    FaChevronLeft, FaChevronRight
 } from 'react-icons/fa';
 
 function Dashboard() {
@@ -16,11 +17,15 @@ function Dashboard() {
     const [feedback, setFeedback] = useState('');
     const [message, setMessage] = useState('');
     const [error, setError] = useState(null);
-  const [searchTerm, setSearchTerm] = useState('');
+    const [searchTerm, setSearchTerm] = useState('');
     const [filteredListings, setFilteredListings] = useState([]);
     const [selectedCategory, setSelectedCategory] = useState('all');
     const navigate = useNavigate();
     const [expandedCards, setExpandedCards] = useState({});
+    const [modalOpen, setModalOpen] = useState(false);
+    const [selectedListing, setSelectedListing] = useState(null);
+    const [carouselIndex, setCarouselIndex] = useState(0);
+    const [username, setUsername] = useState(localStorage.getItem('username') || '');
 
     const categories = [
         { name: 'All', path: '', icon: <FaThLarge /> },
@@ -53,6 +58,10 @@ function Dashboard() {
         fetchListings();
     }, []);
 
+    useEffect(() => {
+    setUsername(localStorage.getItem('username') || '');
+    }, []);
+
     const handleLogout = () => {
         localStorage.removeItem('token');
         localStorage.removeItem('username');
@@ -79,28 +88,30 @@ function Dashboard() {
         setSelectedCategory(category);
         filterListings(searchTerm, category);
     };
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    const formData = {
-      receiverId,
-      senderId,
-      message,
-      listingTitle,
-      listingId,
+
+    // Modal logic for large card
+    const openModal = (listing) => {
+        setSelectedListing(listing);
+        setCarouselIndex(0);
+        setModalOpen(true);
     };
-    const token = localStorage.getItem('token');
-    try {
-      await axios.post('http://localhost:3001/send-message', formData, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      setFeedback('Message sent successfully!');
-    } catch (error) {
-      setFeedback('Failed to send the message. Please try again.');
-    }
-    navigate('/my-messages'); // 发送后跳转
-    setMessage('');
-  };
-  
+    const closeModal = () => {
+        setModalOpen(false);
+        setSelectedListing(null);
+    };
+    const handlePrevImage = (e) => {
+        e.stopPropagation();
+        setCarouselIndex((prev) =>
+            prev === 0 ? selectedListing.images.length - 1 : prev - 1
+        );
+    };
+    const handleNextImage = (e) => {
+        e.stopPropagation();
+        setCarouselIndex((prev) =>
+            prev === selectedListing.images.length - 1 ? 0 : prev + 1
+        );
+    };
+
     const filterListings = (search, category) => {
         let filtered = [...listings];
         if (search) {
@@ -146,6 +157,9 @@ function Dashboard() {
                         title="Profile"
                     >
                         <FaUserCircle />
+                        <span style={{ fontSize: '1rem', marginLeft: '8px' }}>
+                            {username}
+                        </span>
                     </Link>
                     <button className="btn btn-danger" onClick={handleLogout}>Logout</button>
                 </div>
@@ -188,7 +202,11 @@ function Dashboard() {
                             {filteredListings.length > 0 ? (
                                 filteredListings.map((listing) => (
                                     <div key={listing._id} className="col">
-                                        <div className="card h-100 shadow-sm">
+                                        <div
+                                            className="card h-100 shadow-sm"
+                                            style={{ cursor: 'pointer' }}
+                                            onClick={() => openModal(listing)}
+                                        >
                                             {listing.images && listing.images.length > 0 && (
                                                 <div className="listing-image-wrapper">
                                                     <img
@@ -211,7 +229,10 @@ function Dashboard() {
                                                     {listing.description && listing.description.length > 80 && (
                                                         <button
                                                             className="show-more-btn"
-                                                            onClick={() => toggleExpand(listing._id)}
+                                                            onClick={e => {
+                                                                e.stopPropagation();
+                                                                toggleExpand(listing._id);
+                                                            }}
                                                         >
                                                             {expandedCards[listing._id] ? 'Show less' : 'Show more'}
                                                         </button>
@@ -221,12 +242,11 @@ function Dashboard() {
                                                     <p className="card-text"><strong className="text-primary">Price: ${listing.price}</strong></p>
                                                     <p className="card-text"><small className="text-muted">Posted by: {listing.username}</small></p>
 
-                                                    <Popup trigger={<button className="btn btn-outline-primary w-100">Message</button>} modal nested>
+                                                    <Popup trigger={<button className="btn btn-outline-primary w-100" onClick={e => e.stopPropagation()}>Message</button>} modal nested>
                                                         {(close) => (
                                                             <div className="card p-4 custom-popup-content">
-                                                                <button className="btn-close" onClick={close} aria-label="Close" style={{ position: 'absolute', top: '10px', right: '10px'}}>x</button>
+                                                                <button className="btn-close" onClick={close} aria-label="Close" style={{ position: 'absolute', top: '10px', right: '10px' }}>x</button>
                                                                 <div style={{ display: 'flex', alignItems: 'center', gap: '18px', marginBottom: '20px' }}>
-                                                                    
                                                                     {listing.images && listing.images.length > 0 && (
                                                                         <img
                                                                             src={`data:image/jpeg;base64,${listing.images[0]}`}
@@ -236,7 +256,7 @@ function Dashboard() {
                                                                     )}
                                                                     <div>
                                                                         <h5 className="card-title">{listing.title}</h5>
-                                                                        <h6 className="card-text">${listing.price}</h6>   
+                                                                        <h6 className="card-text">${listing.price}</h6>
                                                                     </div>
                                                                 </div>
                                                                 <h5>Send Message to {listing.username}</h5>
@@ -268,14 +288,12 @@ function Dashboard() {
                                                                     }}
                                                                 >
                                                                     <div className="form-group mb-3">
-                                                                        <label htmlFor="message" className="form-label">
-                                                                            
-                                                                        </label>
-                                                                        <textarea 
-                                                                            rows="4" 
+                                                                        <label htmlFor="message" className="form-label"></label>
+                                                                        <textarea
+                                                                            rows="4"
                                                                             id="message"
                                                                             name="message"
-                                                                            className="form-control" 
+                                                                            className="form-control"
                                                                             placeholder="Type your message here..."
                                                                             value={message}
                                                                             onChange={(e) => setMessage(e.target.value)}
@@ -308,6 +326,171 @@ function Dashboard() {
                     )}
                 </div>
             </div>
+
+            {/* Large Modal for Card */}
+            {modalOpen && selectedListing && (
+                <div
+                    className="popup-overlay"
+                    style={{
+                        position: 'fixed',
+                        top: 0,
+                        left: 0,
+                        width: '100vw',
+                        height: '100vh',
+                        background: 'rgba(0,0,0,0.55)',
+                        zIndex: 2000,
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center'
+                    }}
+                    onClick={closeModal}
+                >
+                    <div
+                className="card p-4"
+                style={{
+                    maxWidth: 1300,
+                    width: '99vw',
+                    maxHeight: '99vh',
+                    overflow: 'auto',
+                    position: 'relative',
+                    boxShadow: '0 8px 32px rgba(0,0,0,0.25)',
+                    display: 'flex',
+                    flexDirection: 'column'
+                }}
+                onClick={e => e.stopPropagation()}
+                >
+                <button
+                    className="btn-close"
+                    onClick={closeModal}
+                    aria-label="Close"
+                    style={{ position: 'absolute', top: 10, right: 10, zIndex: 2 }}
+                >x</button>
+                {/* Carousel */}
+                {selectedListing.images && selectedListing.images.length > 0 && (
+                    <div
+                        style={{
+                            position: 'relative',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            marginBottom: 28,
+                            width: '100%',
+                            minHeight: 520,
+                        }}
+                    >
+                <img
+                    src={`data:image/jpeg;base64,${selectedListing.images[carouselIndex]}`}
+                    alt={selectedListing.title}
+                    style={{
+                        width: '100%',
+                        maxWidth: 1200,
+                        maxHeight: 520,
+                        height: 'auto',
+                        objectFit: 'contain',
+                        borderRadius: 16,
+                        boxShadow: '0 2px 24px rgba(0,0,0,0.13)',
+                        display: 'block',
+                        background: '#f8f9fa'
+                    }}
+                />
+                <button
+                    type="button"
+                    className="carousel-arrow left btn btn-light"
+                    style={{
+                        position: 'absolute',
+                        top: '50%',
+                        left: 24,
+                        transform: 'translateY(-50%)',
+                        border: 'none',
+                        background: 'rgba(255,255,255,0.7)',
+                        fontSize: 54,
+                        zIndex: 2
+                    }}
+                    onClick={handlePrevImage}
+                    disabled={selectedListing.images.length <= 1}
+                >
+                    <FaChevronLeft />
+                </button>
+                <button
+                    type="button"
+                    className="carousel-arrow right btn btn-light"
+                    style={{
+                        position: 'absolute',
+                        top: '50%',
+                        right: 24,
+                        transform: 'translateY(-50%)',
+                        border: 'none',
+                        background: 'rgba(255,255,255,0.7)',
+                        fontSize: 54,
+                        zIndex: 2
+                    }}
+                    onClick={handleNextImage}
+                    disabled={selectedListing.images.length <= 1}
+                >
+                    <FaChevronRight />
+                </button>
+            </div>
+        )}
+        <div>
+            <h2 className="card-title">{selectedListing.title}</h2>
+            <h4 className="card-text text-primary mb-2">${selectedListing.price}</h4>
+            <p style={{ fontSize: '1.15rem' }}>{selectedListing.description}</p>
+            <p className="card-text"><small className="text-muted">Posted by: {selectedListing.username}</small></p>
+        </div>
+        {/* Message box at the bottom */}
+        <form
+            style={{ marginTop: 'auto' }}
+            onSubmit={async (e) => {
+                e.preventDefault();
+                const senderId = localStorage.getItem('userId');
+                const receiverId = selectedListing.ownerId || selectedListing.userId;
+                const listingTitle = selectedListing.title;
+                const listingId = selectedListing._id;
+                const token = localStorage.getItem('token');
+                try {
+                    await axios.post('http://localhost:3001/send-message', {
+                        senderId,
+                        receiverId,
+                        listingId,
+                        listingTitle,
+                        message,
+                    }, {
+                        headers: { Authorization: `Bearer ${token}` },
+                    });
+                    setFeedback('Message sent successfully!');
+                    setMessage('');
+                    closeModal();
+                    navigate('/my-messages');
+                } catch (error) {
+                    setFeedback('Failed to send the message. Please try again.');
+                }
+            }}
+        >
+            <div className="form-group mb-3">
+                <label htmlFor="popup-message" className="form-label">Send a message</label>
+                <textarea
+                    rows="3"
+                    id="popup-message"
+                    name="popup-message"
+                    className="form-control"
+                    placeholder="Type your message here..."
+                    value={message}
+                    onChange={(e) => setMessage(e.target.value)}
+                    required
+                ></textarea>
+            </div>
+            <div className="d-flex justify-content-end">
+                <button type="submit" className="btn btn-primary mt-2">Send</button>
+            </div>
+            {feedback && (
+                <div className="alert alert-info mt-3">
+                    {feedback}
+                </div>
+            )}
+        </form>
+    </div>
+                </div>
+            )}
         </div>
     );
 }
