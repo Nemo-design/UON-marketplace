@@ -59,7 +59,7 @@ function Dashboard() {
     }, []);
 
     useEffect(() => {
-    setUsername(localStorage.getItem('username') || '');
+        setUsername(localStorage.getItem('username') || '');
     }, []);
 
     const handleLogout = () => {
@@ -172,7 +172,7 @@ function Dashboard() {
                         {categories.map(({ name, path, icon }) => (
                             <li className="category-item" key={name}>
                                 <button
-                                    to={path ? `/category/${path}` : `/dashboard`}
+                                    type="button"
                                     className={
                                         "category-btn d-inline-flex align-items-center gap-2 text-decoration-none" +
                                         (name !== 'All' && selectedCategory === name.toLowerCase() ? ' text-primary' : '')
@@ -209,18 +209,12 @@ function Dashboard() {
                                         >
                                             {listing.images && listing.images.length > 0 && (
                                                 <div className="listing-image-wrapper">
-      <img
-  src={`data:image/jpeg;base64,${listing.images[0]}`}
-  alt={listing.title}
-  className="listing-image card-img-top"
-  onClick={() => {
-    setCurrentImages(listing.images);
-    setCurrentImageIndex(0);
-    setImagePopupOpen(true);
-  }}
-  style={{ cursor: 'pointer' }}
-/>
-
+                                                    <img
+                                                        src={`data:image/jpeg;base64,${listing.images[0]}`}
+                                                        alt={listing.title}
+                                                        className="listing-image card-img-top"
+                                                        style={{ cursor: 'pointer' }}
+                                                    />
                                                 </div>
                                             )}
 
@@ -319,68 +313,6 @@ function Dashboard() {
                                                             </div>
                                                         )}
                                                     </Popup>
-
-<Popup
-  open={imagePopupOpen}
-  onClose={() => setImagePopupOpen(false)}
-  modal
-  nested
-  overlayClassName="popup-overlay"
-  contentStyle={{
-    background: "transparent",
-    border: "none",
-    boxShadow: "none",     // removes drop shadow
-    padding: "0",
-    display: "flex",
-    justifyContent: "center",
-    alignItems: "center"
-  }}
->
-  <div className="custom-popup-content position-relative">
-    <button
-      className="btn-close"
-      onClick={() => setImagePopupOpen(false)}
-      aria-label="Close"
-    >
-      ×
-    </button>
-    {currentImages.length > 0 && (
-      <div className="d-flex align-items-center justify-content-center gap-4 mt-4">
-        <button
-          className="btn btn-outline-secondary"
-          onClick={() =>
-            setCurrentImageIndex((prev) =>
-              prev > 0 ? prev - 1 : currentImages.length - 1
-            )
-          }
-        >
-          ‹
-        </button>
-        <img
-          src={`data:image/jpeg;base64,${currentImages[currentImageIndex]}`}
-          alt="Listing"
-          style={{
-            maxWidth: "100%",
-            maxHeight: "400px",
-            objectFit: "contain",
-            borderRadius: "12px"
-          }}
-        />
-        <button
-          className="btn btn-outline-secondary"
-          onClick={() =>
-            setCurrentImageIndex((prev) =>
-              prev < currentImages.length - 1 ? prev + 1 : 0
-            )
-          }
-        >
-          ›
-        </button>
-      </div>
-    )}
-  </div>
-</Popup>
-
                                                 </div>
                                             </div>
                                         </div>
@@ -415,149 +347,149 @@ function Dashboard() {
                     onClick={closeModal}
                 >
                     <div
-                className="card p-4"
-                style={{
-                    maxWidth: 1300,
-                    width: '99vw',
-                    maxHeight: '99vh',
-                    overflow: 'auto',
-                    position: 'relative',
-                    boxShadow: '0 8px 32px rgba(0,0,0,0.25)',
-                    display: 'flex',
-                    flexDirection: 'column'
-                }}
-                onClick={e => e.stopPropagation()}
-                >
-                <button
-                    className="btn-close"
-                    onClick={closeModal}
-                    aria-label="Close"
-                    style={{ position: 'absolute', top: 10, right: 10, zIndex: 2 }}
-                >x</button>
-                {/* Carousel */}
-                {selectedListing.images && selectedListing.images.length > 0 && (
-                    <div
+                        className="card p-4"
                         style={{
+                            maxWidth: 1300,
+                            width: '99vw',
+                            maxHeight: '99vh',
+                            overflow: 'auto',
                             position: 'relative',
+                            boxShadow: '0 8px 32px rgba(0,0,0,0.25)',
                             display: 'flex',
-                            alignItems: 'center',
-                            justifyContent: 'center',
-                            marginBottom: 28,
-                            width: '100%',
-                            minHeight: 520,
+                            flexDirection: 'column'
                         }}
+                        onClick={e => e.stopPropagation()}
                     >
-                <img
-                    src={`data:image/jpeg;base64,${selectedListing.images[carouselIndex]}`}
-                    alt={selectedListing.title}
-                    style={{
-                        width: '100%',
-                        maxWidth: 1200,
-                        maxHeight: 520,
-                        height: 'auto',
-                        objectFit: 'contain',
-                        borderRadius: 16,
-                        boxShadow: '0 2px 24px rgba(0,0,0,0.13)',
-                        display: 'block',
-                        background: '#f8f9fa'
-                    }}
-                />
-                <button
-                    type="button"
-                    className="carousel-arrow left btn btn-light"
-                    style={{
-                        position: 'absolute',
-                        top: '50%',
-                        left: 24,
-                        transform: 'translateY(-50%)',
-                        border: 'none',
-                        background: 'rgba(255,255,255,0.7)',
-                        fontSize: 54,
-                        zIndex: 2
-                    }}
-                    onClick={handlePrevImage}
-                    disabled={selectedListing.images.length <= 1}
-                >
-                    <FaChevronLeft />
-                </button>
-                <button
-                    type="button"
-                    className="carousel-arrow right btn btn-light"
-                    style={{
-                        position: 'absolute',
-                        top: '50%',
-                        right: 24,
-                        transform: 'translateY(-50%)',
-                        border: 'none',
-                        background: 'rgba(255,255,255,0.7)',
-                        fontSize: 54,
-                        zIndex: 2
-                    }}
-                    onClick={handleNextImage}
-                    disabled={selectedListing.images.length <= 1}
-                >
-                    <FaChevronRight />
-                </button>
-            </div>
-        )}
-        <div>
-            <h2 className="card-title">{selectedListing.title}</h2>
-            <h4 className="card-text text-primary mb-2">${selectedListing.price}</h4>
-            <p style={{ fontSize: '1.15rem' }}>{selectedListing.description}</p>
-            <p className="card-text"><small className="text-muted">Posted by: {selectedListing.username}</small></p>
-        </div>
-        {/* Message box at the bottom */}
-        <form
-            style={{ marginTop: 'auto' }}
-            onSubmit={async (e) => {
-                e.preventDefault();
-                const senderId = localStorage.getItem('userId');
-                const receiverId = selectedListing.ownerId || selectedListing.userId;
-                const listingTitle = selectedListing.title;
-                const listingId = selectedListing._id;
-                const token = localStorage.getItem('token');
-                try {
-                    await axios.post('http://localhost:3001/send-message', {
-                        senderId,
-                        receiverId,
-                        listingId,
-                        listingTitle,
-                        message,
-                    }, {
-                        headers: { Authorization: `Bearer ${token}` },
-                    });
-                    setFeedback('Message sent successfully!');
-                    setMessage('');
-                    closeModal();
-                    navigate('/my-messages');
-                } catch (error) {
-                    setFeedback('Failed to send the message. Please try again.');
-                }
-            }}
-        >
-            <div className="form-group mb-3">
-                <label htmlFor="popup-message" className="form-label">Send a message</label>
-                <textarea
-                    rows="3"
-                    id="popup-message"
-                    name="popup-message"
-                    className="form-control"
-                    placeholder="Type your message here..."
-                    value={message}
-                    onChange={(e) => setMessage(e.target.value)}
-                    required
-                ></textarea>
-            </div>
-            <div className="d-flex justify-content-end">
-                <button type="submit" className="btn btn-primary mt-2">Send</button>
-            </div>
-            {feedback && (
-                <div className="alert alert-info mt-3">
-                    {feedback}
-                </div>
-            )}
-        </form>
-    </div>
+                        <button
+                            className="btn-close"
+                            onClick={closeModal}
+                            aria-label="Close"
+                            style={{ position: 'absolute', top: 10, right: 10, zIndex: 2 }}
+                        >x</button>
+                        {/* Carousel */}
+                        {selectedListing.images && selectedListing.images.length > 0 && (
+                            <div
+                                style={{
+                                    position: 'relative',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    justifyContent: 'center',
+                                    marginBottom: 28,
+                                    width: '100%',
+                                    minHeight: 520,
+                                }}
+                            >
+                                <img
+                                    src={`data:image/jpeg;base64,${selectedListing.images[carouselIndex]}`}
+                                    alt={selectedListing.title}
+                                    style={{
+                                        width: '100%',
+                                        maxWidth: 1200,
+                                        maxHeight: 520,
+                                        height: 'auto',
+                                        objectFit: 'contain',
+                                        borderRadius: 16,
+                                        boxShadow: '0 2px 24px rgba(0,0,0,0.13)',
+                                        display: 'block',
+                                        background: '#f8f9fa'
+                                    }}
+                                />
+                                <button
+                                    type="button"
+                                    className="carousel-arrow left btn btn-light"
+                                    style={{
+                                        position: 'absolute',
+                                        top: '50%',
+                                        left: 24,
+                                        transform: 'translateY(-50%)',
+                                        border: 'none',
+                                        background: 'rgba(255,255,255,0.7)',
+                                        fontSize: 54,
+                                        zIndex: 2
+                                    }}
+                                    onClick={handlePrevImage}
+                                    disabled={selectedListing.images.length <= 1}
+                                >
+                                    <FaChevronLeft />
+                                </button>
+                                <button
+                                    type="button"
+                                    className="carousel-arrow right btn btn-light"
+                                    style={{
+                                        position: 'absolute',
+                                        top: '50%',
+                                        right: 24,
+                                        transform: 'translateY(-50%)',
+                                        border: 'none',
+                                        background: 'rgba(255,255,255,0.7)',
+                                        fontSize: 54,
+                                        zIndex: 2
+                                    }}
+                                    onClick={handleNextImage}
+                                    disabled={selectedListing.images.length <= 1}
+                                >
+                                    <FaChevronRight />
+                                </button>
+                            </div>
+                        )}
+                        <div>
+                            <h2 className="card-title">{selectedListing.title}</h2>
+                            <h4 className="card-text text-primary mb-2">${selectedListing.price}</h4>
+                            <p style={{ fontSize: '1.15rem' }}>{selectedListing.description}</p>
+                            <p className="card-text"><small className="text-muted">Posted by: {selectedListing.username}</small></p>
+                        </div>
+                        {/* Message box at the bottom */}
+                        <form
+                            style={{ marginTop: 'auto' }}
+                            onSubmit={async (e) => {
+                                e.preventDefault();
+                                const senderId = localStorage.getItem('userId');
+                                const receiverId = selectedListing.ownerId || selectedListing.userId;
+                                const listingTitle = selectedListing.title;
+                                const listingId = selectedListing._id;
+                                const token = localStorage.getItem('token');
+                                try {
+                                    await axios.post('http://localhost:3001/send-message', {
+                                        senderId,
+                                        receiverId,
+                                        listingId,
+                                        listingTitle,
+                                        message,
+                                    }, {
+                                        headers: { Authorization: `Bearer ${token}` },
+                                    });
+                                    setFeedback('Message sent successfully!');
+                                    setMessage('');
+                                    closeModal();
+                                    navigate('/my-messages');
+                                } catch (error) {
+                                    setFeedback('Failed to send the message. Please try again.');
+                                }
+                            }}
+                        >
+                            <div className="form-group mb-3">
+                                <label htmlFor="popup-message" className="form-label">Send a message</label>
+                                <textarea
+                                    rows="3"
+                                    id="popup-message"
+                                    name="popup-message"
+                                    className="form-control"
+                                    placeholder="Type your message here..."
+                                    value={message}
+                                    onChange={(e) => setMessage(e.target.value)}
+                                    required
+                                ></textarea>
+                            </div>
+                            <div className="d-flex justify-content-end">
+                                <button type="submit" className="btn btn-primary mt-2">Send</button>
+                            </div>
+                            {feedback && (
+                                <div className="alert alert-info mt-3">
+                                    {feedback}
+                                </div>
+                            )}
+                        </form>
+                    </div>
                 </div>
             )}
         </div>
