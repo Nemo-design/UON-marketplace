@@ -61,6 +61,15 @@ app.post('/login', async (req, res) => {
 // Register endpoint
 app.post('/register', async (req, res) => {
   try {
+    const { Username, Email } = req.body;
+    const userByUsername = await compModel.findOne({ Username });
+    const userByEmail = await compModel.findOne({ Email });
+    if (userByUsername) {
+      return res.status(400).json({ error: 'Username already in use.' });
+    }
+    if (userByEmail) {
+      return res.status(400).json({ error: 'Email already in use.' });
+    }
     const newUser = await compModel.create(req.body);
     res.json(newUser);
   } catch (err) {
@@ -400,6 +409,22 @@ app.post('/reply-message', authMiddleware(true), async (req, res) => {
   } catch (err) {
     console.error('Error replying to message:', err);
     res.status(500).json({ error: 'Failed to reply to message', details: err.message });
+  }
+});
+app.post('/check-user', async (req, res) => {
+  try {
+    const { Username, Email } = req.body;
+    const userByUsername = await compModel.findOne({ Username });
+    const userByEmail = await compModel.findOne({ Email });
+    if (userByUsername) {
+      return res.json({ exists: true, message: 'Username already in use.' });
+    }
+    if (userByEmail) {
+      return res.json({ exists: true, message: 'Email already in use.' });
+    }
+    res.json({ exists: false });
+  } catch (err) {
+    res.status(500).json({ exists: false, message: 'Error checking user.' });
   }
 });
 

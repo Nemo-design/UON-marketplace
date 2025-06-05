@@ -13,6 +13,7 @@ function Signup() {
     const [Username, setUsername] = useState('');
     const [Email, setEmail] = useState('');
     const [Password, setPassword] = useState('');
+    const [error, setError] = useState('');
     const navigate = useNavigate();
 
     const categories = [
@@ -29,23 +30,33 @@ function Signup() {
         { name: 'Pets', icon: <FaDog /> }
     ];
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
-        axios.post('http://localhost:3001/register', {
-            Username,
-            Email,
-            Password
-        })
-            .then((res) => {
-                navigate('/login');
-            })
-            .catch((err) => {
-                if (err.response && err.response.data && err.response.data.error) {
-                    alert(err.response.data.error);
-                } else {
-                    alert('Registration failed.');
-                }
+        setError('');
+        try {
+            // Check if username or email already exists
+            const checkRes = await axios.post('http://localhost:3001/check-user', {
+                Username,
+                Email
             });
+            if (checkRes.data.exists) {
+                setError(checkRes.data.message || 'Username or email already in use.');
+                return;
+            }
+            // Proceed with registration
+            await axios.post('http://localhost:3001/register', {
+                Username,
+                Email,
+                Password
+            });
+            navigate('/login');
+        } catch (err) {
+            if (err.response && err.response.data && err.response.data.error) {
+                setError(err.response.data.error);
+            } else {
+                setError('Registration failed.');
+            }
+        }
     };
 
     return (
@@ -86,6 +97,7 @@ function Signup() {
                             <input type="text" placeholder="Username" required onChange={(e) => setUsername(e.target.value)} />
                             <input type="email" placeholder="Email" required onChange={(e) => setEmail(e.target.value)} />
                             <input type="password" placeholder="Password" required onChange={(e) => setPassword(e.target.value)} />
+                            {error && <div className="alert alert-danger">{error}</div>}
                             <button type="submit">Sign Up</button>
                             <div>
                                 <Link to="/login">Already have an account? Login</Link>
