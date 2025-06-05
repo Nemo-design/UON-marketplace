@@ -21,6 +21,9 @@ function Dashboard() {
     const [selectedCategory, setSelectedCategory] = useState('all');
     const navigate = useNavigate();
     const [expandedCards, setExpandedCards] = useState({});
+    const [imagePopupOpen, setImagePopupOpen] = useState(false);
+    const [currentImages, setCurrentImages] = useState([]);
+    const [currentImageIndex, setCurrentImageIndex] = useState(0);
 
     const categories = [
         { name: 'All', path: '', icon: <FaThLarge /> },
@@ -191,11 +194,18 @@ function Dashboard() {
                                         <div className="card h-100 shadow-sm">
                                             {listing.images && listing.images.length > 0 && (
                                                 <div className="listing-image-wrapper">
-                                                    <img
-                                                        src={`data:image/jpeg;base64,${listing.images[0]}`}
-                                                        alt={listing.title}
-                                                        className="listing-image card-img-top"
-                                                    />
+      <img
+  src={`data:image/jpeg;base64,${listing.images[0]}`}
+  alt={listing.title}
+  className="listing-image card-img-top"
+  onClick={() => {
+    setCurrentImages(listing.images);
+    setCurrentImageIndex(0);
+    setImagePopupOpen(true);
+  }}
+  style={{ cursor: 'pointer' }}
+/>
+
                                                 </div>
                                             )}
 
@@ -294,6 +304,68 @@ function Dashboard() {
                                                             </div>
                                                         )}
                                                     </Popup>
+
+<Popup
+  open={imagePopupOpen}
+  onClose={() => setImagePopupOpen(false)}
+  modal
+  nested
+  overlayClassName="popup-overlay"
+  contentStyle={{
+    background: "transparent",
+    border: "none",
+    boxShadow: "none",     // removes drop shadow
+    padding: "0",
+    display: "flex",
+    justifyContent: "center",
+    alignItems: "center"
+  }}
+>
+  <div className="custom-popup-content position-relative">
+    <button
+      className="btn-close"
+      onClick={() => setImagePopupOpen(false)}
+      aria-label="Close"
+    >
+      ×
+    </button>
+    {currentImages.length > 0 && (
+      <div className="d-flex align-items-center justify-content-center gap-4 mt-4">
+        <button
+          className="btn btn-outline-secondary"
+          onClick={() =>
+            setCurrentImageIndex((prev) =>
+              prev > 0 ? prev - 1 : currentImages.length - 1
+            )
+          }
+        >
+          ‹
+        </button>
+        <img
+          src={`data:image/jpeg;base64,${currentImages[currentImageIndex]}`}
+          alt="Listing"
+          style={{
+            maxWidth: "100%",
+            maxHeight: "400px",
+            objectFit: "contain",
+            borderRadius: "12px"
+          }}
+        />
+        <button
+          className="btn btn-outline-secondary"
+          onClick={() =>
+            setCurrentImageIndex((prev) =>
+              prev < currentImages.length - 1 ? prev + 1 : 0
+            )
+          }
+        >
+          ›
+        </button>
+      </div>
+    )}
+  </div>
+</Popup>
+
                                                 </div>
                                             </div>
                                         </div>
